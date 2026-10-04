@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720" role="img" aria-labelledby="title description">
+  <title id="title">swe-day lock session</title>
+  <desc id="description">A terminal acquires the swe-day lock, is refused a second acquire with exit status 2, renders the next-action banner, is refused a release by another caller, and releases the lock.</desc>
+  <rect width="1280" height="720" rx="24" fill="#101418" />
+  <circle cx="40" cy="44" r="9" fill="#ff6b6b" />
+  <circle cx="70" cy="44" r="9" fill="#ffd166" />
+  <circle cx="100" cy="44" r="9" fill="#55d6be" />
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="16">
+    <text x="40" y="108" fill="#f7fbff" xml:space="preserve">$ lock() { python3 skills/swe-day/scripts/swe_day_lock.py --repo ops-repo --lock-path locks/day.lock &quot;$@&quot;; }</text>
+    <g class="step-1">
+      <text x="40" y="148" fill="#f7fbff" xml:space="preserve">$ lock acquire --owner alex --work-item D01 --plan-path plans/d01.md --session-id s1</text>
+      <text x="40" y="174" fill="#55d6be" xml:space="preserve">exit status: 0</text>
+    </g>
+    <g class="step-2">
+      <text x="40" y="214" fill="#f7fbff" xml:space="preserve">$ lock acquire --owner blake --work-item D02 --plan-path plans/d02.md --session-id s2</text>
+      <text x="40" y="240" fill="#ffd166" xml:space="preserve">swe-day lock already exists; stale locks require human review.</text>
+      <text x="40" y="266" fill="#ffd166" xml:space="preserve">exit status: 2</text>
+    </g>
+    <g class="step-3">
+      <text x="40" y="306" fill="#f7fbff" xml:space="preserve">$ python3 skills/swe-day/scripts/swe_day_next.py --repo ops-repo --lock-path locks/day.lock render</text>
+      <text x="40" y="332" fill="#f7fbff" xml:space="preserve">▶ swe-day ACTIVE · phase preflight · NEXT: prerequisite gate: resolve dependency markers · OWNER: agent · BLOCKED-ON: none</text>
+      <text x="40" y="358" fill="#55d6be" xml:space="preserve">exit status: 0</text>
+    </g>
+    <g class="step-4">
+      <text x="40" y="398" fill="#f7fbff" xml:space="preserve">$ lock release --owner blake --session-id s2</text>
+      <text x="40" y="424" fill="#ffd166" xml:space="preserve">refusing to release a lock owned by another caller</text>
+      <text x="40" y="450" fill="#ffd166" xml:space="preserve">exit status: 3</text>
+    </g>
+    <g class="step-5">
+      <text x="40" y="490" fill="#f7fbff" xml:space="preserve">$ lock release --owner alex --session-id s1</text>
+      <text x="40" y="516" fill="#55d6be" xml:space="preserve">exit status: 0</text>
+    </g>
+  </g>
+  <text x="40" y="692" fill="#a7bac5" font-family="ui-monospace, SFMono-Regular, Menlo, monospace" font-size="15">Reconstructed from evidence/transcripts/lock-session.txt</text>
+</svg>

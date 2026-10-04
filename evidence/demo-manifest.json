@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-04",
+  "skill": {
+    "path": "skills/swe-day/SKILL.md",
+    "sha256": "541ca2fd71ad487539606450de2955b48eef4165df6fa4c22d39c892d15d95ba"
+  },
+  "programs": [
+    {
+      "path": "skills/swe-day/scripts/swe_day_lock.py",
+      "sha256": "270bdee79dbd2ef10cb826c5474fef630f64c40942db631a4ba0d4ebd6b8d3e9"
+    },
+    {
+      "path": "skills/swe-day/scripts/swe_day_next.py",
+      "sha256": "eeb66ea6c6b50c653619cf45129368ba31645536a4510a97f8b7d21ca8af7c08"
+    }
+  ],
+  "agent": {
+    "invoked_the_skill": false,
+    "note": "No agent session ran a SWE day to produce this evidence. The two programs were run directly from a shell while this release was being prepared."
+  },
+  "invocation": {
+    "commands": [
+      "lock() { python3 skills/swe-day/scripts/swe_day_lock.py --repo ops-repo --lock-path locks/day.lock \"$@\"; }",
+      "lock acquire --owner alex --work-item D01 --plan-path plans/d01.md --session-id s1",
+      "lock acquire --owner blake --work-item D02 --plan-path plans/d02.md --session-id s2",
+      "python3 skills/swe-day/scripts/swe_day_next.py --repo ops-repo --lock-path locks/day.lock render",
+      "lock release --owner blake --session-id s2",
+      "lock release --owner alex --session-id s1"
+    ],
+    "interpreter": "Python 3.13.13",
+    "working_directory": "a throwaway directory holding a copy of skills/ and an empty git repository named ops-repo"
+  },
+  "output": {
+    "path": "evidence/transcripts/lock-session.txt",
+    "sha256": "c91c20bb1dff7189cb92fb26a7606a384c2711a541f9f4ba64efa2edff03e221",
+    "edited": true,
+    "transforms": [
+      {
+        "name": "replace-capture-root",
+        "what": "The absolute path of the throwaway capture directory was replaced with /work by one string replacement in scripts/record_session.py."
+      },
+      {
+        "name": "replace-hostname",
+        "what": "The recording machine's hostname in each hostname line was replaced with host by scripts/record_session.py. Nothing else was changed."
+      }
+    ],
+    "note": "scripts/record_session.py wrote each command line before running it and each exit status line from the command's exit status; everything between is the programs' output."
+  }
+}

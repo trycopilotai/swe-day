@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>swe-day</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 1280px;
+        height: 640px;
+        background: #101418;
+      }
+      body {
+        box-sizing: border-box;
+        padding: 72px 80px;
+        color: #f7fbff;
+        font-family:
+          ui-monospace, SFMono-Regular, Menlo, monospace;
+      }
+      .name {
+        font-size: 44px;
+        font-weight: 600;
+        letter-spacing: -0.5px;
+      }
+      .line {
+        margin-top: 36px;
+        font-size: 30px;
+        line-height: 1.4;
+        color: #a7bac5;
+      }
+      .clauses {
+        margin-top: 44px;
+        font-size: 24px;
+        line-height: 1.6;
+      }
+      .fired {
+        color: #ffd166;
+      }
+      .quiet {
+        color: #55d6be;
+      }
+      .foot {
+        position: absolute;
+        left: 80px;
+        bottom: 56px;
+        font-size: 22px;
+        color: #a7bac5;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="name">swe-day</div>
+    <div class="line">
+      swe_day_lock.py refuses to acquire a lock that is held.
+    </div>
+    <div class="clauses">
+      <div class="fired">
+        swe-day lock already exists; stale locks require human
+        review.
+      </div>
+      <div class="fired">exit status: 2</div>
+    </div>
+    <div class="foot">trycopilot.ai · agent skill · MIT</div>
+  </body>
+</html>

@@ -1,0 +1,81 @@
+$ lock() { python3 skills/swe-day/scripts/swe_day_lock.py --repo ops-repo --lock-path locks/day.lock "$@"; }
+$ lock acquire --owner alex --work-item D01 --plan-path plans/d01.md --session-id s1
+{
+  "acquired_at": "2026-10-04T20:33:06.124117Z",
+  "acquired_phase": "preflight",
+  "age_seconds": 0,
+  "cleared_gates": [],
+  "hostname": "host",
+  "lock_path": "/work/ops-repo/locks/day.lock",
+  "locked": true,
+  "next_owner": "agent",
+  "owner": "alex",
+  "pending_gate": null,
+  "phase": "preflight",
+  "pid": 62762,
+  "plan_path": "plans/d01.md",
+  "repo": "/work/ops-repo",
+  "scope": "tracked operational repo mutation",
+  "session_id": "s1",
+  "work_item": "D01"
+}
+$ echo "exit status: $?"
+exit status: 0
+$ lock acquire --owner blake --work-item D02 --plan-path plans/d02.md --session-id s2
+swe-day lock already exists; stale locks require human review.
+{
+  "acquired_at": "2026-10-04T20:33:06.124117Z",
+  "acquired_phase": "preflight",
+  "age_seconds": 0,
+  "cleared_gates": [],
+  "hostname": "host",
+  "lock_path": "/work/ops-repo/locks/day.lock",
+  "locked": true,
+  "next_owner": "agent",
+  "owner": "alex",
+  "pending_gate": null,
+  "phase": "preflight",
+  "pid": 62762,
+  "plan_path": "plans/d01.md",
+  "repo": "/work/ops-repo",
+  "scope": "tracked operational repo mutation",
+  "session_id": "s1",
+  "work_item": "D01"
+}
+$ echo "exit status: $?"
+exit status: 2
+$ python3 skills/swe-day/scripts/swe_day_next.py --repo ops-repo --lock-path locks/day.lock render
+▶ swe-day ACTIVE · phase preflight · NEXT: prerequisite gate: resolve dependency markers · OWNER: agent · BLOCKED-ON: none
+$ echo "exit status: $?"
+exit status: 0
+$ lock release --owner blake --session-id s2
+refusing to release a lock owned by another caller
+{
+  "acquired_at": "2026-10-04T20:33:06.124117Z",
+  "acquired_phase": "preflight",
+  "age_seconds": 0,
+  "cleared_gates": [],
+  "hostname": "host",
+  "lock_path": "/work/ops-repo/locks/day.lock",
+  "locked": true,
+  "next_owner": "agent",
+  "owner": "alex",
+  "pending_gate": null,
+  "phase": "preflight",
+  "pid": 62762,
+  "plan_path": "plans/d01.md",
+  "repo": "/work/ops-repo",
+  "scope": "tracked operational repo mutation",
+  "session_id": "s1",
+  "work_item": "D01"
+}
+$ echo "exit status: $?"
+exit status: 3
+$ lock release --owner alex --session-id s1
+{
+  "lock_path": "/work/ops-repo/locks/day.lock",
+  "released": true,
+  "released_at": "2026-10-04T20:33:06.259244Z"
+}
+$ echo "exit status: $?"
+exit status: 0
