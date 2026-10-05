@@ -350,8 +350,8 @@ in full before step 0, and return to it at every step.
 ## Helper scripts
 
 Run both with `python3`; neither is installed executable.
-The scripts live in this skill's directory, not in the
-target repository, so always call them by `<skill-dir>`, the
+The scripts live in this skill's directory, not in any
+repository you work in, so always call them by `<skill-dir>`, the
 absolute path of the directory that holds this `SKILL.md`.
 Claude Code prints it as the skill's base directory when the
 skill loads; a personal install is `~/.claude/skills/swe-day`,
@@ -361,9 +361,11 @@ install is `~/.agents/skills/swe-day` (or
 `.agents/skills/swe-day` in a repository). If unsure, find
 the directory that holds `scripts/swe_day_lock.py` next to
 this file. A bare `scripts/...` path fails when the shell is
-in the target repository.
-Both take `--repo`, the target repository (an existing
-directory), and a `--lock-path` that must stay inside it,
+in another directory.
+Both take `--repo`, the repository that holds the lock
+(the one `ops_repo_lock` binds, or `ops_repo` when none is
+bound; never the implementation repository), and a
+`--lock-path` that must stay inside it,
 and exit 5 otherwise, including for a path that cannot be
 resolved. Both options go before the subcommand:
 `python3 <skill-dir>/scripts/swe_day_next.py --repo <repo> --lock-path <path> render`.
