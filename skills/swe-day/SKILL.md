@@ -59,7 +59,10 @@ recorded authorization, stop and ask the operator first.
 
 ## Inputs
 
-Bound by a per-repo wrapper or passed at call time:
+Bound by a per-repo wrapper or passed at call time. With no
+wrapper and nothing passed, the run still follows this
+protocol: step 0 preflight, the lock, the banner and every
+human gate apply exactly as written.
 
 - `work_item` - id of the unit of work in the operator's
   timeline (for example a dated milestone or `D0X`-style
@@ -101,10 +104,13 @@ Bound by a per-repo wrapper or passed at call time:
   a reference surface to the changed implementation.
 - `result_evidence` - optional policy for where temporary
   result UIs and durable private summaries are recorded.
-- `ops_repo_lock` - optional exclusive mutation lock policy
-  for the operational repo. When bound, acquire it before
-  mutating tracked operational state and release it when the
-  protocol is done or deliberately paused.
+- `ops_repo_lock` - optional repository and lock path for
+  the swe-day lock. The lock itself is not optional: every
+  run acquires it in step 0, before any edit, and releases
+  it when the protocol is done (or keeps it while
+  deliberately paused). When no lock path is bound, the lock
+  is taken at the lock script's default path in the target
+  repository.
 
 ## Stateful invocation contract
 
@@ -217,13 +223,22 @@ These bind every step.
   groups, and the next actor. Stop for operator approval
   unless the wrapper explicitly allows that exact group to
   be auto-committed.
-- **Operational repo mutation is exclusive when locked.** If
-  the wrapper binds `ops_repo_lock`, acquire it before the
-  first tracked mutation in `ops_repo`. A held lock means
-  other agents may read and may work in independent
-  implementation worktrees, but must not mutate tracked
-  `ops_repo` state. Stale locks are reported to the
-  operator; do not clear them automatically.
+- **Every run holds the lock.** Acquire the swe-day lock in
+  step 0, before the first edit of any kind, whether or not
+  a wrapper binds `ops_repo_lock`; without a bound path it
+  goes at the lock script's default path in the target
+  repository. A held lock means other agents may read and
+  may work in independent implementation worktrees, but
+  must not mutate tracked `ops_repo` state. Stale locks are
+  reported to the operator; do not clear them
+  automatically.
+- **Missing delegated skills stop the run.** Step 0 lists
+  the delegated skills the day needs. If any is missing,
+  acquire nothing, edit nothing, report the missing ones and
+  stop, unless the operator explicitly says to proceed
+  without them; that consent is recorded with
+  `acquire --proceed-without <skill>`, and each step that
+  needed a missing skill is reported `NOT-RUN`.
 - **Inclusive, neutral language** in every authored surface;
   private labels never cross into the shared repo.
 - **Shared repo landing rewrites history.** When applying,
@@ -252,15 +267,18 @@ These bind every step.
 
 ## Active Run mode
 
-While a swe-day run is live — the operational lock is held —
-the run is in **Active Run mode**. The next required action,
+While a swe-day run is live — the swe-day lock is held,
+which step 0 makes true for every run — the run is in
+**Active Run mode**. The next required action,
 who owns it, and the current blocking gate are derived from
 state, not improvised. Bind this rule:
 
 - **Begin every turn** by running
   `python3 <skill-dir>/scripts/swe_day_next.py --repo <repo> --lock-path <path> render`
-  (`<skill-dir>` and the wrapper-bound `--repo`/`--lock-path`
-  are under Helper scripts) and emit its banner
+  (`<skill-dir>` is under Helper scripts; `--repo` and
+  `--lock-path` are the ones step 0 acquired with, and
+  `--lock-path` may be omitted when the default was used)
+  and emit its banner
   at the top of your reply. Its first line is
   `▶ swe-day ACTIVE · phase <P> · NEXT: <item> · OWNER: human|agent · BLOCKED-ON: <whom>`;
   up to two indented detail lines can follow.
@@ -297,7 +315,10 @@ state, not improvised. Bind this rule:
   pending. On the operator's explicit instruction to abandon
   the run, pass `--abandon`.
 - If no lock directory exists, `render` prints
-  `no active swe-day` and Active Run mode is inactive.
+  `no active swe-day` and Active Run mode is inactive. That
+  is true only before step 0 has acquired the lock or after
+  `release`; it is never a way to work without the banner
+  or the gates.
 - **Showing a diff for a human gate.** When the operator
   asks to see or review a diff (held changes, a worktree
   commit), write ONE `.diff` per changed file into a fresh
@@ -339,9 +360,11 @@ resolved. Both options go before the subcommand:
 `python3 <skill-dir>/scripts/swe_day_next.py --repo <repo> --lock-path <path> render`.
 Both programs need Python 3.9 or later and `fcntl`.
 
-- `scripts/swe_day_lock.py` manages an optional operational
-  repo mutation lock: `acquire`, `status`, `set-phase`,
-  `clear-gate` and `release`.
+- `scripts/swe_day_lock.py` manages the swe-day lock that
+  every run holds: `acquire`, `status`, `set-phase`,
+  `clear-gate` and `release`. Without `--lock-path` it uses
+  its default path inside `--repo`; `status` prints the
+  resolved `lock_path`.
   - `acquire` needs `--owner`, `--work-item`, `--plan-path`
     and a session id (`--session-id`, or `CODEX_SESSION_ID`,
     `CODEX_THREAD_ID` or `SESSION_ID` in the environment).
@@ -362,6 +385,10 @@ Both programs need Python 3.9 or later and `fcntl`.
     derived from them: `pending_gate` and `next_owner`.
   - `acquire --phase <p>` starts a run at a phase other than
     `preflight`. Gates of earlier phases are not asked for.
+  - `acquire --proceed-without <skill>`, repeated once per
+    skill, records in the metadata (`proceed_without`) the
+    missing delegated skills the operator explicitly agreed
+    to run without. Pass it only on that consent.
   - `set-phase --phase <p> [--note <s>]` records the phase
     the agent is in. The phase must be one of the model's
     and not an earlier one. Advancing needs no gate pending,

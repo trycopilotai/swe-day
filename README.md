@@ -30,6 +30,9 @@ repository.
   transcript shows only the lock and the banner.
 - Whether an agent that follows `SKILL.md` actually stops at
   each human gate has not been measured.
+- Whether an agent now stops at step 0 when a delegated
+  skill is missing, and takes the lock on a run with no
+  wrapper, has not been measured.
 - Neither Claude Code nor Codex was started to confirm that
   the invocation names below resolve.
 
@@ -58,8 +61,20 @@ of them ships here: a bounded fix loop, a result visualizer,
 a multi-persona code review, an operator-comment ingest, a
 review watcher, a coverage improver, a mutation-testing
 audit, a handoff recorder, and a commit planner. Step 0 of
-the skill checks the first eight and fails loudly when one
-does not resolve.
+the skill lists the first eight and, when one does not
+resolve, stops before taking the lock or editing anything
+and names what is missing. It goes on only if the operator
+explicitly agrees to run without them; the lock then records
+that consent (`acquire --proceed-without <skill>`), and each
+step that needed a missing skill is reported as not run.
+That check is an instruction to the agent: neither program
+looks for the skills.
+
+Every run takes the lock in step 0, with or without a
+wrapper. When no lock path is bound it goes at the lock
+program's default path in the target repository, so the
+next-action banner and the human gates hold for every
+run.
 
 The steps call four of them by name: `improve-coverage`,
 `review-watch`, `address-comments` and `planCommits()`.
@@ -82,7 +97,7 @@ fails.
 
 ```sh
 set -eu
-release=v0.1.1
+release=v0.1.2
 install_target="$HOME/.claude/skills/swe-day"
 install_parent="$(dirname "$install_target")"
 mkdir -p "$install_parent"
@@ -119,7 +134,7 @@ the block above is `install_target`.
 
 ```sh
 set -eu
-release=v0.1.1
+release=v0.1.2
 install_target="$HOME/.agents/skills/swe-day"
 install_parent="$(dirname "$install_target")"
 mkdir -p "$install_parent"

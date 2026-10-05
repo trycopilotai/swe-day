@@ -510,6 +510,11 @@ def command_acquire(args: argparse.Namespace, lock_path: Path) -> int:
     if not args.owner.strip() or not args.session_id.strip():
         print("acquire needs a non-empty --owner and session id.", file=sys.stderr)
         return 2
+    if args.proceed_without is not None and any(
+        not name.strip() for name in args.proceed_without
+    ):
+        print("--proceed-without needs a non-empty skill name.", file=sys.stderr)
+        return 2
     if args.phase not in PHASE_KEYS:
         print(
             "unknown phase %r. Known phases: %s" % (args.phase, ", ".join(PHASE_KEYS)),
@@ -545,6 +550,8 @@ def command_acquire(args: argparse.Namespace, lock_path: Path) -> int:
         "session_id": args.session_id,
         "work_item": args.work_item,
     }
+    if args.proceed_without is not None:
+        state["proceed_without"] = list(args.proceed_without)
     with serialized(lock_path):
         try:
             lock_path.mkdir(mode=0o700)
@@ -753,6 +760,14 @@ def build_parser() -> argparse.ArgumentParser:
         help="The phase the run starts from; one of the modelled phases.",
     )
     acquire.add_argument("--session-id", default=default_session())
+    acquire.add_argument(
+        "--proceed-without",
+        action="append",
+        default=None,
+        metavar="SKILL",
+        help="A delegated skill that is missing and that the operator "
+        "explicitly agreed to run without. Repeat for each one.",
+    )
     acquire.set_defaults(handler=command_acquire)
 
     status = subparsers.add_parser("status")

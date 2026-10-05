@@ -1,7 +1,7 @@
 $ lock() { python3 skills/swe-day/scripts/swe_day_lock.py --repo ops-repo --lock-path locks/day.lock "$@"; }
 $ lock acquire --owner alex --work-item D01 --plan-path plans/d01.md --session-id s1
 {
-  "acquired_at": "2026-10-04T20:33:06.124117Z",
+  "acquired_at": "2026-10-05T18:25:04.874791Z",
   "acquired_phase": "preflight",
   "age_seconds": 0,
   "cleared_gates": [],
@@ -12,7 +12,7 @@ $ lock acquire --owner alex --work-item D01 --plan-path plans/d01.md --session-i
   "owner": "alex",
   "pending_gate": null,
   "phase": "preflight",
-  "pid": 62762,
+  "pid": 54835,
   "plan_path": "plans/d01.md",
   "repo": "/work/ops-repo",
   "scope": "tracked operational repo mutation",
@@ -24,7 +24,7 @@ exit status: 0
 $ lock acquire --owner blake --work-item D02 --plan-path plans/d02.md --session-id s2
 swe-day lock already exists; stale locks require human review.
 {
-  "acquired_at": "2026-10-04T20:33:06.124117Z",
+  "acquired_at": "2026-10-05T18:25:04.874791Z",
   "acquired_phase": "preflight",
   "age_seconds": 0,
   "cleared_gates": [],
@@ -35,7 +35,7 @@ swe-day lock already exists; stale locks require human review.
   "owner": "alex",
   "pending_gate": null,
   "phase": "preflight",
-  "pid": 62762,
+  "pid": 54835,
   "plan_path": "plans/d01.md",
   "repo": "/work/ops-repo",
   "scope": "tracked operational repo mutation",
@@ -51,7 +51,7 @@ exit status: 0
 $ lock release --owner blake --session-id s2
 refusing to release a lock owned by another caller
 {
-  "acquired_at": "2026-10-04T20:33:06.124117Z",
+  "acquired_at": "2026-10-05T18:25:04.874791Z",
   "acquired_phase": "preflight",
   "age_seconds": 0,
   "cleared_gates": [],
@@ -62,7 +62,7 @@ refusing to release a lock owned by another caller
   "owner": "alex",
   "pending_gate": null,
   "phase": "preflight",
-  "pid": 62762,
+  "pid": 54835,
   "plan_path": "plans/d01.md",
   "repo": "/work/ops-repo",
   "scope": "tracked operational repo mutation",
@@ -75,7 +75,7 @@ $ lock release --owner alex --session-id s1
 {
   "lock_path": "/work/ops-repo/locks/day.lock",
   "released": true,
-  "released_at": "2026-10-04T20:33:06.259244Z"
+  "released_at": "2026-10-05T18:25:05.180493Z"
 }
 $ echo "exit status: $?"
 exit status: 0

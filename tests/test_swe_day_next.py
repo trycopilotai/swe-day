@@ -127,6 +127,43 @@ class AcquireTests(Harness):
             self.assertEqual(self.acquire(who=who).returncode, 2, who)
             self.assertFalse((self.repo / LOCK_PATH).exists())
 
+    def test_consent_to_run_without_missing_skills_is_recorded(self) -> None:
+        result = self.lock(
+            "acquire",
+            "--work-item",
+            "D99",
+            "--plan-path",
+            "plans/test.plan.md",
+            "--proceed-without",
+            "improve-coverage",
+            "--proceed-without",
+            "review-watch",
+            *ME,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        recorded = ["improve-coverage", "review-watch"]
+        self.assertEqual(self.metadata()["proceed_without"], recorded)
+        self.assertEqual(self.status()["proceed_without"], recorded)
+
+    def test_a_lock_taken_with_every_skill_present_records_no_consent(self) -> None:
+        self.assertEqual(self.acquire().returncode, 0)
+        self.assertNotIn("proceed_without", self.metadata())
+
+    def test_an_empty_proceed_without_is_refused(self) -> None:
+        for name in ("", " "):
+            result = self.lock(
+                "acquire",
+                "--work-item",
+                "D99",
+                "--plan-path",
+                "plans/test.plan.md",
+                "--proceed-without",
+                name,
+                *ME,
+            )
+            self.assertEqual(result.returncode, 2, name)
+            self.assertFalse((self.repo / LOCK_PATH).exists())
+
     def test_no_lock_means_no_active_run(self) -> None:
         self.assertEqual(self.banner().strip(), "no active swe-day")
 

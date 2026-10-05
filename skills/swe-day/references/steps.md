@@ -13,24 +13,41 @@ values passed to `swe_day_lock.py clear-gate`, together with
 
 ### 0. Preflight — `owner: agent`
 
+Step 0 runs before any edit, with or without a wrapper.
 Confirm the day can run, and fail loudly listing anything
 missing:
 
-- Every delegated skill/protocol this day uses resolves (the
-  fix loop, the visualizer, code review, comment ingest,
-  review-watch, coverage improvement, mutation testing,
-  handoff).
+- List the delegated skills/protocols this day needs and
+  check that each resolves: the fix loop (step 8), the
+  result visualizer (step 12), code review (step 13),
+  comment ingest (step 13), review-watch (step 12),
+  coverage improvement (step 10), mutation testing
+  (step 11) and handoff (step 16).
+- If any of them is missing, this is a hard stop: acquire
+  nothing, edit nothing, report the missing ones by name
+  and the steps that need them, and stop. Go on only when
+  the operator explicitly says to proceed without them.
+  Then record that consent with the lock by passing
+  `--proceed-without <skill>` to `acquire` once per missing
+  skill, and report every step that needed a missing skill
+  as `NOT-RUN` with the missing skill as the reason. Never
+  substitute an improvised version of a missing skill.
 - `impl_worktree` exists and is a worktree of the shared
   implementation repo, not of a single-branch `ops_repo`.
 - `timeline_doc` is readable.
 - Read the target repos' agent instructions and note any
   off-limits areas before touching code.
-- If `ops_repo_lock` is bound and the day will mutate
-  `ops_repo`, acquire the lock with the helper script
-  (`python3 <skill-dir>/scripts/swe_day_lock.py --repo <repo> --lock-path <path> acquire ...`;
-  `<skill-dir>` is defined under Helper scripts in SKILL.md)
-  before the first mutation. If another lock exists, report its
-  metadata and stop for the operator.
+- Acquire the swe-day lock before the first edit of any
+  kind, on every run:
+  `python3 <skill-dir>/scripts/swe_day_lock.py --repo <repo> --lock-path <path> acquire ...`
+  (`<skill-dir>` is defined under Helper scripts in
+  SKILL.md). When `ops_repo_lock` binds a repository and
+  lock path, use them. When no lock path is bound,
+  `--repo` is the target repository and `--lock-path` is
+  omitted, so the script uses its default path inside it.
+  Use the same `--repo` and `--lock-path` for every later
+  helper call. If another lock exists, report its metadata
+  and stop for the operator.
 
 ### 1. Prerequisite gate — `owner: agent`, `gate: prerequisite-go` _(evidence; human decides)_
 
@@ -298,8 +315,7 @@ step as completed, failed, timed out, or `NOT-RUN`. Report
 the incremental coverage percentage or proof status before
 the absolute coverage percentage; a green test suite without
 100% incremental coverage is not a complete swe-day unless
-the operator explicitly accepted the gap. If an
-`ops_repo_lock` was acquired, release it only after all
-intended `ops_repo` mutations are complete and the final
-status has been reported. If the run is paused, report that
-the lock remains held and why.
+the operator explicitly accepted the gap. Release the lock
+only after all intended mutations are complete and the
+final status has been reported. If the run is paused,
+report that the lock remains held and why.

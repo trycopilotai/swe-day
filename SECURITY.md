@@ -28,7 +28,8 @@ private channel.
   `skills/swe-day/scripts/swe_day_lock.py` creates and
   removes one lock directory, and writes one metadata file
   inside it, at a path the caller names relative to a
-  repository root. It refuses a path argument that is
+  repository root, or at its default path there when none is
+  named. It refuses a path argument that is
   absolute, contains `..`, or resolves outside that root,
   and it creates missing parent directories inside the root.
   A path argument that makes it write or delete outside the

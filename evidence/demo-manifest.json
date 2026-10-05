@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "date": "2026-10-04",
+  "date": "2026-10-05",
   "skill": {
     "path": "skills/swe-day/SKILL.md",
-    "sha256": "f1973f8fcc1a8e2e103a2896905b23f29b0c62f4daba6e25e77e43fca9d6fa0c"
+    "sha256": "1e0b0c78990fa200a26cbfa7154dde7488a369f7773d990f068fc2500730bdca"
   },
   "programs": [
     {
       "path": "skills/swe-day/scripts/swe_day_lock.py",
-      "sha256": "270bdee79dbd2ef10cb826c5474fef630f64c40942db631a4ba0d4ebd6b8d3e9"
+      "sha256": "25b3e9007f8197f19f2a71131a6c6e08a87e3040a6ef02acdfd8254cc24a352c"
     },
     {
       "path": "skills/swe-day/scripts/swe_day_next.py",
@@ -33,7 +33,7 @@
   },
   "output": {
     "path": "evidence/transcripts/lock-session.txt",
-    "sha256": "c91c20bb1dff7189cb92fb26a7606a384c2711a541f9f4ba64efa2edff03e221",
+    "sha256": "294e613132ab48ee20372a7ccd5f011e55d6038b9878136a1c4d244af58e3597",
     "edited": true,
     "transforms": [
       {

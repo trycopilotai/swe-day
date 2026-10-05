@@ -121,12 +121,23 @@ Everything else needs operator approval before commit,
 especially semantic code, shared/public repos, protocol
 edits, app repos, submodule pointers, and mixed diffs.
 
+## Missing Delegated Skills
+
+Step 0 lists the delegated skills the day needs. If any is
+missing, the agent acquires nothing, edits nothing, reports
+the missing ones and stops. It goes on only when the
+operator explicitly says to proceed without them; that
+consent is recorded with the lock, and every step that
+needed a missing skill is reported `NOT-RUN`.
+
 ## Operational Repo Lock
 
-If the repo wrapper binds an operational lock, the agent
-must acquire it before mutating tracked operational repo
-state. Other agents may read and may work in independent
-implementation worktrees, but must not mutate that
+Every run acquires the swe-day lock in step 0, before any
+edit, whether or not a repo wrapper binds one. Without a
+bound path it is taken at the lock script's default path in
+the target repository, and the Active Run banner and gates
+apply for the whole run. Other agents may read and may work
+in independent implementation worktrees, but must not mutate that
 operational repo while the lock is held.
 
 Stale locks are never cleared automatically. Report the

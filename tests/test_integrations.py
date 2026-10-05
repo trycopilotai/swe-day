@@ -177,6 +177,26 @@ class SkillTest(unittest.TestCase):
         self.assertIn("`<skill-dir>`", read(SKILL))
 
 
+    def test_step_zero_always_takes_the_lock_and_stops_on_a_missing_skill(
+        self,
+    ) -> None:
+        steps = read(PACKAGE / "references" / "steps.md")
+        preflight = steps.split("### 0. ", 1)[1].split("### 1. ", 1)[0]
+        flat = " ".join(preflight.split())
+        self.assertIn("`--lock-path` is omitted, so the script uses its default", flat)
+        self.assertIn("--proceed-without", flat)
+        self.assertIn("acquire nothing, edit nothing", flat)
+        skill = " ".join(read(SKILL).split())
+        self.assertIn("lock script's default path in the target repository", skill)
+        for conditional in (
+            "If `ops_repo_lock` is bound",
+            "When bound, acquire it",
+            "If the wrapper binds `ops_repo_lock`",
+            "manages an optional",
+        ):
+            self.assertNotIn(conditional, flat + skill)
+
+
 class ManifestTest(unittest.TestCase):
     def test_both_manifests_agree(self) -> None:
         claude = manifest(".claude-plugin")
