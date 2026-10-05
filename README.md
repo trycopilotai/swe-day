@@ -95,7 +95,9 @@ lock. When no lock path is bound, the lock goes at the lock
 program's default path inside `ops_repo`, the operator's
 private operational repository, so the next-action banner
 and the human gates hold for the rest of the run. Run
-`swe_day_lock.py --repo <ops_repo> status` to see that path:
+`python3 <skill-dir>/scripts/swe_day_lock.py --repo <ops_repo> status`
+(`<skill-dir>` is the installed skill's directory, as SKILL.md's
+Helper scripts section explains) to see that path:
 it prints `lock_path` and writes nothing, before or after a
 lock exists. Taking the lock is the run's first write to
 that repository. Do not commit the lock directory; its
@@ -122,7 +124,7 @@ fails.
 
 ```sh
 set -eu
-release=v0.1.4
+release=v0.1.5
 install_target="$HOME/.claude/skills/swe-day"
 install_parent="$(dirname "$install_target")"
 mkdir -p "$install_parent"
@@ -159,7 +161,7 @@ the block above is `install_target`.
 
 ```sh
 set -eu
-release=v0.1.4
+release=v0.1.5
 install_target="$HOME/.agents/skills/swe-day"
 install_parent="$(dirname "$install_target")"
 mkdir -p "$install_parent"
