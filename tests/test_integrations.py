@@ -162,6 +162,20 @@ class SkillTest(unittest.TestCase):
             self.assertIn(relative, text)
             self.assertTrue((PACKAGE / relative).is_file(), relative)
 
+    def test_helper_invocations_name_the_skill_directory(self) -> None:
+        # The agent runs from the target repository, so a bare
+        # `python3 scripts/...` cannot find the helpers.
+        documents = [SKILL, *sorted((PACKAGE / "references").glob("*.md"))]
+        calls = []
+        for document in documents:
+            for call in re.findall(r"python3 (\S*scripts/swe_day_\w+\.py)", read(document)):
+                calls.append(call)
+                self.assertEqual(
+                    call.split("scripts/")[0], "<skill-dir>/", document.name
+                )
+        self.assertGreaterEqual(len(calls), 4)
+        self.assertIn("`<skill-dir>`", read(SKILL))
+
 
 class ManifestTest(unittest.TestCase):
     def test_both_manifests_agree(self) -> None:

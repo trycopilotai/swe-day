@@ -258,8 +258,9 @@ who owns it, and the current blocking gate are derived from
 state, not improvised. Bind this rule:
 
 - **Begin every turn** by running
-  `python3 scripts/swe_day_next.py render` (with the
-  wrapper-bound `--repo`/`--lock-path`) and emit its banner
+  `python3 <skill-dir>/scripts/swe_day_next.py --repo <repo> --lock-path <path> render`
+  (`<skill-dir>` and the wrapper-bound `--repo`/`--lock-path`
+  are under Helper scripts) and emit its banner
   at the top of your reply. Its first line is
   `▶ swe-day ACTIVE · phase <P> · NEXT: <item> · OWNER: human|agent · BLOCKED-ON: <whom>`;
   up to two indented detail lines can follow.
@@ -272,7 +273,7 @@ state, not improvised. Bind this rule:
 - **A human gate clears only by an explicit operator
   action.** The operator (or the agent on the operator's
   explicit instruction) runs
-  `python3 scripts/swe_day_lock.py clear-gate <name> --owner <owner> --session-id <session>`.
+  `python3 <skill-dir>/scripts/swe_day_lock.py --repo <repo> --lock-path <path> clear-gate <name> --owner <owner> --session-id <session>`.
   Within a held lock nothing else removes a pending gate.
   Releasing with `--abandon`, and acquiring again with
   `--phase`, start over without it; both are the operator's
@@ -319,10 +320,23 @@ in full before step 0, and return to it at every step.
 ## Helper scripts
 
 Run both with `python3`; neither is installed executable.
-Both take `--repo`, an existing directory, and a
-`--lock-path` that must stay inside it, and exit 5
-otherwise, including for a path that cannot be resolved. Both options go before the subcommand:
-`python3 scripts/swe_day_next.py --repo <repo> --lock-path <path> render`.
+The scripts live in this skill's directory, not in the
+target repository, so always call them by `<skill-dir>`, the
+absolute path of the directory that holds this `SKILL.md`.
+Claude Code prints it as the skill's base directory when the
+skill loads; a personal install is `~/.claude/skills/swe-day`,
+a project install `.claude/skills/swe-day`, and a plugin
+install `skills/swe-day` under the plugin's root. A Codex
+install is `~/.agents/skills/swe-day` (or
+`.agents/skills/swe-day` in a repository). If unsure, find
+the directory that holds `scripts/swe_day_lock.py` next to
+this file. A bare `scripts/...` path fails when the shell is
+in the target repository.
+Both take `--repo`, the target repository (an existing
+directory), and a `--lock-path` that must stay inside it,
+and exit 5 otherwise, including for a path that cannot be
+resolved. Both options go before the subcommand:
+`python3 <skill-dir>/scripts/swe_day_next.py --repo <repo> --lock-path <path> render`.
 Both programs need Python 3.9 or later and `fcntl`.
 
 - `scripts/swe_day_lock.py` manages an optional operational

@@ -26,8 +26,10 @@ missing:
 - Read the target repos' agent instructions and note any
   off-limits areas before touching code.
 - If `ops_repo_lock` is bound and the day will mutate
-  `ops_repo`, acquire the lock with the helper script before
-  the first mutation. If another lock exists, report its
+  `ops_repo`, acquire the lock with the helper script
+  (`python3 <skill-dir>/scripts/swe_day_lock.py --repo <repo> --lock-path <path> acquire ...`;
+  `<skill-dir>` is defined under Helper scripts in SKILL.md)
+  before the first mutation. If another lock exists, report its
   metadata and stop for the operator.
 
 ### 1. Prerequisite gate — `owner: agent`, `gate: prerequisite-go` _(evidence; human decides)_
