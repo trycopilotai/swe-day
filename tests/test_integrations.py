@@ -190,6 +190,51 @@ class SkillTest(unittest.TestCase):
         self.assertIn("nine", " ".join(read(SKILL).split()))
         self.assertNotIn("first eight", read(README))
 
+    def test_step_zero_lists_every_step_that_names_a_delegated_skill(self) -> None:
+        # A step that calls a skill by name must appear in that
+        # skill's row, or a missing skill leaves it out of NOT-RUN.
+        steps = read(PACKAGE / "references" / "steps.md")
+        sections = re.split(r"^### (\d+)\. ", steps, flags=re.M)
+        bodies = dict(zip(sections[1::2], sections[2::2]))
+        rows = re.findall(r"^\s*\| `([a-z-]+)` \| steps? ([\d, ]+) \|", bodies["0"], flags=re.M)
+        aliases = {"plan-commits": "planCommits"}
+        checked = 0
+        for name, served in rows:
+            if name == "handoff":
+                continue  # also the name of the handoff document
+            listed = {step.strip() for step in served.split(",")}
+            for token in (name, aliases.get(name, name)):
+                pattern = r"(?<![(\w-])%s(?![\w-])" % re.escape(token)
+                for number, body in bodies.items():
+                    if number != "0" and re.search(pattern, body):
+                        self.assertIn(number, listed, name)
+                        checked += 1
+        self.assertGreaterEqual(checked, 6)
+
+    def test_docs_say_where_the_default_lock_goes(self) -> None:
+        steps = read(PACKAGE / "references" / "steps.md")
+        preflight = " ".join(steps.split("### 0. ", 1)[1].split("### 1. ", 1)[0].split())
+        self.assertIn("`--repo` is `ops_repo` and `--lock-path` is omitted", preflight)
+        self.assertIn("it prints `lock_path` and writes nothing", preflight)
+        self.assertIn("Never commit it", preflight)
+        for document in (README, SKILL, PACKAGE / "references" / "summary.md"):
+            text = " ".join(read(document).split())
+            self.assertIn("default path inside `ops_repo`", text, document.name)
+            self.assertNotIn("default path in the target repository", text, document.name)
+
+    def test_status_reports_the_default_lock_path_without_writing(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            result = subprocess.run(
+                [sys.executable, "-B", str(LOCK), "--repo", directory, "status"],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
+            status = json.loads(result.stdout)
+            self.assertFalse(status["locked"])
+            self.assertTrue(status["lock_path"].endswith("swe-day.lock"))
+            self.assertEqual(os.listdir(directory), [])
+
     def test_step_zero_always_takes_the_lock_and_stops_on_a_missing_skill(
         self,
     ) -> None:
@@ -199,9 +244,9 @@ class SkillTest(unittest.TestCase):
         self.assertIn("`--lock-path` is omitted, so the script uses its default", flat)
         self.assertIn("--proceed-without", flat)
         self.assertIn("acquire nothing, edit nothing", flat)
-        self.assertIn("A run that stops in step 0 edits nothing and takes no lock", flat)
+        self.assertIn("A run that stops in step 0 writes nothing and takes no lock", flat)
         skill = " ".join(read(SKILL).split())
-        self.assertIn("lock script's default path in the target repository", skill)
+        self.assertIn("lock script's default path inside `ops_repo`", skill)
         # A run that stops at the preflight takes no lock, so no
         # document may say that every run holds or takes it.
         documents = [README, SKILL, *sorted((PACKAGE / "references").glob("*.md"))]

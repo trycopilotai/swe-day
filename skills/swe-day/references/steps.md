@@ -15,7 +15,7 @@ values passed to `swe_day_lock.py clear-gate`, together with
 
 Step 0 runs before any edit, with or without a wrapper.
 Confirm the day can run, and fail loudly listing anything
-missing. A run that stops in step 0 edits nothing and takes
+missing. A run that stops in step 0 writes nothing and takes
 no lock; every run that goes past step 0 holds the lock.
 
 - Check that each delegated skill below resolves. The name
@@ -34,8 +34,8 @@ no lock; every run that goes past step 0 holds the lock.
   | `mutation-testing` | step 11 | mutation-testing audit |
   | `result-visualizer` | step 12 | result visualizer |
   | `review-watch` | step 12 | review watcher |
-  | `address-comments` | steps 12, 13 | operator-comment ingest |
-  | `code-review` | step 13 | multi-persona code review |
+  | `address-comments` | steps 10, 12, 13 | operator-comment ingest |
+  | `code-review` | steps 10, 13 | multi-persona code review |
   | `handoff` | step 16 | handoff recorder |
 
 - If any of them is missing, this is a hard stop: acquire
@@ -61,9 +61,14 @@ no lock; every run that goes past step 0 holds the lock.
   Helper scripts in SKILL.md; `--plan-path` may name a plan
   that is not written yet). When `ops_repo_lock` binds a
   repository and lock path, use them. When no lock path is
-  bound, `--repo` is the target repository and
-  `--lock-path` is omitted, so the script uses its default
-  path inside it (`status` prints it as `lock_path`).
+  bound, `--repo` is `ops_repo` and `--lock-path` is
+  omitted, so the script uses its default path inside
+  `ops_repo`. To see that path first, run `status` with the
+  same `--repo`: it prints `lock_path` and writes nothing,
+  before or after a lock exists. Acquiring is the run's
+  first write: it creates the lock directory in that
+  repository. Never commit it; its metadata records the
+  hostname, process id and absolute repository path.
   Use the same `--repo` and `--lock-path` for every later
   helper call. If another lock exists, report its metadata
   and stop for the operator.

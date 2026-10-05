@@ -134,11 +134,11 @@ needed a missing skill is reported `NOT-RUN`.
 ## Operational Repo Lock
 
 Every run that goes past the step 0 preflight acquires the
-swe-day lock at the end of step 0, before any edit, whether
-or not a repo wrapper binds one. A run that stops at the
-preflight edits nothing and takes no lock. Without a bound
-path the lock is taken at the lock script's default path in
-the target repository, and the Active Run banner and gates
+swe-day lock at the end of step 0, before any other write,
+whether or not a repo wrapper binds one. A run that stops
+at the preflight writes nothing and takes no lock. Without
+a bound path the lock is taken at the lock script's default
+path inside `ops_repo`, and the Active Run banner and gates
 apply from then until the run ends. Other agents may read and may work
 in independent implementation worktrees, but must not mutate that
 operational repo while the lock is held.

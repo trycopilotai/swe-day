@@ -68,9 +68,10 @@ one with the name below:
 - `mutation-testing`: a mutation-testing audit (step 11).
 - `result-visualizer`: a result visualizer (step 12).
 - `review-watch`: a review watcher (step 12).
-- `address-comments`: an operator-comment ingest (steps 12
-  and 13).
-- `code-review`: a multi-persona code review (step 13).
+- `address-comments`: an operator-comment ingest (steps 10,
+  12 and 13).
+- `code-review`: a multi-persona code review (steps 10 and
+  13).
 - `handoff`: a handoff recorder (step 16).
 
 A name resolves when a skill of that name is listed among
@@ -89,11 +90,21 @@ it is given.
 
 Every run that goes past the step 0 preflight takes the
 lock at the end of step 0, with or without a wrapper. A run
-that stops at the preflight edits nothing and takes no
+that stops at the preflight writes nothing and takes no
 lock. When no lock path is bound, the lock goes at the lock
-program's default path in the target repository (`status`
-prints it as `lock_path`), so the next-action banner and
-the human gates hold for the rest of the run.
+program's default path inside `ops_repo`, the operator's
+private operational repository, so the next-action banner
+and the human gates hold for the rest of the run. Run
+`swe_day_lock.py --repo <ops_repo> status` to see that path:
+it prints `lock_path` and writes nothing, before or after a
+lock exists. Taking the lock is the run's first write to
+that repository. Do not commit the lock directory; its
+metadata records the hostname, process id and absolute
+repository path.
+
+None of the nine skills ships here, so on an install
+without them every run stops at step 0 until each one
+resolves or the operator agrees to go on without it.
 
 ## Use it
 
@@ -111,7 +122,7 @@ fails.
 
 ```sh
 set -eu
-release=v0.1.3
+release=v0.1.4
 install_target="$HOME/.claude/skills/swe-day"
 install_parent="$(dirname "$install_target")"
 mkdir -p "$install_parent"
@@ -148,7 +159,7 @@ the block above is `install_target`.
 
 ```sh
 set -eu
-release=v0.1.3
+release=v0.1.4
 install_target="$HOME/.agents/skills/swe-day"
 install_parent="$(dirname "$install_target")"
 mkdir -p "$install_parent"

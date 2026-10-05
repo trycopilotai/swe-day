@@ -22,9 +22,9 @@ description: >-
 
 Orchestrate one bounded unit of software work end to end.
 This skill is the conductor: it sequences other skills and
-protocols (a bounded fix loop, a result visualizer, a
-multi-persona code review, an operator-comment ingest, a
-mutation-testing audit, and a handoff recorder) and inserts
+protocols (the nine that step 0 of `references/steps.md`
+names, such as a bounded fix loop, a result visualizer, a
+multi-persona code review and a handoff recorder) and inserts
 an explicit human gate at every point where judgment, not
 mechanism, decides the next move.
 
@@ -107,12 +107,13 @@ human gate apply exactly as written.
 - `ops_repo_lock` - optional repository and lock path for
   the swe-day lock. The lock itself is not optional: every
   run that goes past the step 0 preflight acquires it at
-  the end of step 0, before any edit, and releases it when
-  the protocol is done (or keeps it while deliberately
-  paused). A run that stops at the preflight edits nothing
-  and takes no lock. When no lock path is bound, the lock
-  is taken at the lock script's default path in the target
-  repository; `status` prints it as `lock_path`.
+  the end of step 0, before any other write, and releases
+  it when the protocol is done (or keeps it while
+  deliberately paused). A run that stops at the preflight
+  writes nothing and takes no lock. When no lock path is
+  bound, the lock is taken at the lock script's default
+  path inside `ops_repo`; `status` with `--repo <ops_repo>`
+  prints it as `lock_path` and writes nothing.
 
 ## Stateful invocation contract
 
@@ -227,12 +228,13 @@ These bind every step.
   be auto-committed.
 - **Every run past preflight holds the lock.** Every run
   that goes past the step 0 preflight acquires the swe-day
-  lock at the end of step 0, before the first edit of any
-  kind, whether or not a wrapper binds `ops_repo_lock`;
-  without a bound path it goes at the lock script's default
-  path in the target repository. A run that stops at the
-  preflight edits nothing and takes no lock. A held lock means other agents may read and
-  may work in independent implementation worktrees, but
+  lock at the end of step 0, before any other write,
+  whether or not a wrapper binds `ops_repo_lock`; without a
+  bound path it goes at the lock script's default path
+  inside `ops_repo`, and the lock directory is never
+  committed. A run that stops at the preflight writes
+  nothing and takes no lock. A held lock means other agents
+  may read and may work in independent implementation worktrees, but
   must not mutate tracked `ops_repo` state. Stale locks are
   reported to the operator; do not clear them
   automatically.
@@ -371,7 +373,8 @@ Both programs need Python 3.9 or later and `fcntl`.
   every run past preflight holds: `acquire`, `status`, `set-phase`,
   `clear-gate` and `release`. Without `--lock-path` it uses
   its default path inside `--repo`; `status` prints the
-  resolved `lock_path`.
+  resolved `lock_path`, whether or not a lock exists, and
+  writes nothing.
   - `acquire` needs `--owner`, `--work-item`, `--plan-path`
     and a session id (`--session-id`, or `CODEX_SESSION_ID`,
     `CODEX_THREAD_ID` or `SESSION_ID` in the environment).
