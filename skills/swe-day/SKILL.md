@@ -106,11 +106,13 @@ human gate apply exactly as written.
   result UIs and durable private summaries are recorded.
 - `ops_repo_lock` - optional repository and lock path for
   the swe-day lock. The lock itself is not optional: every
-  run acquires it in step 0, before any edit, and releases
-  it when the protocol is done (or keeps it while
-  deliberately paused). When no lock path is bound, the lock
+  run that goes past the step 0 preflight acquires it at
+  the end of step 0, before any edit, and releases it when
+  the protocol is done (or keeps it while deliberately
+  paused). A run that stops at the preflight edits nothing
+  and takes no lock. When no lock path is bound, the lock
   is taken at the lock script's default path in the target
-  repository.
+  repository; `status` prints it as `lock_path`.
 
 ## Stateful invocation contract
 
@@ -223,21 +225,25 @@ These bind every step.
   groups, and the next actor. Stop for operator approval
   unless the wrapper explicitly allows that exact group to
   be auto-committed.
-- **Every run holds the lock.** Acquire the swe-day lock in
-  step 0, before the first edit of any kind, whether or not
-  a wrapper binds `ops_repo_lock`; without a bound path it
-  goes at the lock script's default path in the target
-  repository. A held lock means other agents may read and
+- **Every run past preflight holds the lock.** Every run
+  that goes past the step 0 preflight acquires the swe-day
+  lock at the end of step 0, before the first edit of any
+  kind, whether or not a wrapper binds `ops_repo_lock`;
+  without a bound path it goes at the lock script's default
+  path in the target repository. A run that stops at the
+  preflight edits nothing and takes no lock. A held lock means other agents may read and
   may work in independent implementation worktrees, but
   must not mutate tracked `ops_repo` state. Stale locks are
   reported to the operator; do not clear them
   automatically.
 - **Missing delegated skills stop the run.** Step 0 lists
-  the delegated skills the day needs. If any is missing,
-  acquire nothing, edit nothing, report the missing ones and
-  stop, unless the operator explicitly says to proceed
-  without them; that consent is recorded with
-  `acquire --proceed-without <skill>`, and each step that
+  the nine delegated skills the day needs, each by one
+  canonical name, and how to check that it resolves. If any
+  is missing, acquire nothing, edit nothing, report the
+  missing ones and stop, unless the operator explicitly says
+  to proceed without them; that consent is recorded with
+  `acquire --proceed-without <skill>`, passing the
+  canonical name from step 0, and each step that
   needed a missing skill is reported `NOT-RUN`.
 - **Inclusive, neutral language** in every authored surface;
   private labels never cross into the shared repo.
@@ -268,7 +274,8 @@ These bind every step.
 ## Active Run mode
 
 While a swe-day run is live — the swe-day lock is held,
-which step 0 makes true for every run — the run is in
+which is true from the end of step 0 for every run that
+goes past the preflight — the run is in
 **Active Run mode**. The next required action,
 who owns it, and the current blocking gate are derived from
 state, not improvised. Bind this rule:
@@ -361,7 +368,7 @@ resolved. Both options go before the subcommand:
 Both programs need Python 3.9 or later and `fcntl`.
 
 - `scripts/swe_day_lock.py` manages the swe-day lock that
-  every run holds: `acquire`, `status`, `set-phase`,
+  every run past preflight holds: `acquire`, `status`, `set-phase`,
   `clear-gate` and `release`. Without `--lock-path` it uses
   its default path inside `--repo`; `status` prints the
   resolved `lock_path`.
@@ -388,7 +395,9 @@ Both programs need Python 3.9 or later and `fcntl`.
   - `acquire --proceed-without <skill>`, repeated once per
     skill, records in the metadata (`proceed_without`) the
     missing delegated skills the operator explicitly agreed
-    to run without. Pass it only on that consent.
+    to run without. Pass it only on that consent, with the
+    skill's canonical name from step 0. The program records
+    any non-empty value; it does not check the name.
   - `set-phase --phase <p> [--note <s>]` records the phase
     the agent is in. The phase must be one of the model's
     and not an earlier one. Advancing needs no gate pending,

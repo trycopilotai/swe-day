@@ -15,36 +15,55 @@ values passed to `swe_day_lock.py clear-gate`, together with
 
 Step 0 runs before any edit, with or without a wrapper.
 Confirm the day can run, and fail loudly listing anything
-missing:
+missing. A run that stops in step 0 edits nothing and takes
+no lock; every run that goes past step 0 holds the lock.
 
-- List the delegated skills/protocols this day needs and
-  check that each resolves: the fix loop (step 8), the
-  result visualizer (step 12), code review (step 13),
-  comment ingest (step 13), review-watch (step 12),
-  coverage improvement (step 10), mutation testing
-  (step 11) and handoff (step 16).
+- Check that each delegated skill below resolves. The name
+  is the canonical one: use it in reports and pass exactly
+  it to `acquire --proceed-without`. A name resolves when a
+  skill of that name is listed among the session's
+  available skills, or when the wrapper binds that name to
+  a skill or protocol that is listed there; then check the
+  bound one. Nothing in this package installs any of them.
+
+  | Skill | Serves | Role |
+  | --- | --- | --- |
+  | `fix-loop` | step 8 | bounded fix loop |
+  | `improve-coverage` | step 10 | coverage improver |
+  | `plan-commits` | steps 10, 13, 16 | commit planner, called as `planCommits()` |
+  | `mutation-testing` | step 11 | mutation-testing audit |
+  | `result-visualizer` | step 12 | result visualizer |
+  | `review-watch` | step 12 | review watcher |
+  | `address-comments` | steps 12, 13 | operator-comment ingest |
+  | `code-review` | step 13 | multi-persona code review |
+  | `handoff` | step 16 | handoff recorder |
+
 - If any of them is missing, this is a hard stop: acquire
   nothing, edit nothing, report the missing ones by name
   and the steps that need them, and stop. Go on only when
   the operator explicitly says to proceed without them.
   Then record that consent with the lock by passing
   `--proceed-without <skill>` to `acquire` once per missing
-  skill, and report every step that needed a missing skill
-  as `NOT-RUN` with the missing skill as the reason. Never
-  substitute an improvised version of a missing skill.
+  skill, with the name from the table, and report every
+  step that needed a missing skill as `NOT-RUN` with the
+  missing skill as the reason. Never substitute an
+  improvised version of a missing skill.
 - `impl_worktree` exists and is a worktree of the shared
   implementation repo, not of a single-branch `ops_repo`.
 - `timeline_doc` is readable.
 - Read the target repos' agent instructions and note any
   off-limits areas before touching code.
-- Acquire the swe-day lock before the first edit of any
-  kind, on every run:
+- Once every check above has passed (or the operator has
+  agreed to go on without the missing skills), acquire the
+  swe-day lock before the first edit of any kind:
   `python3 <skill-dir>/scripts/swe_day_lock.py --repo <repo> --lock-path <path> acquire ...`
-  (`<skill-dir>` is defined under Helper scripts in
-  SKILL.md). When `ops_repo_lock` binds a repository and
-  lock path, use them. When no lock path is bound,
-  `--repo` is the target repository and `--lock-path` is
-  omitted, so the script uses its default path inside it.
+  (`<skill-dir>` and the `acquire` arguments are under
+  Helper scripts in SKILL.md; `--plan-path` may name a plan
+  that is not written yet). When `ops_repo_lock` binds a
+  repository and lock path, use them. When no lock path is
+  bound, `--repo` is the target repository and
+  `--lock-path` is omitted, so the script uses its default
+  path inside it (`status` prints it as `lock_path`).
   Use the same `--repo` and `--lock-path` for every later
   helper call. If another lock exists, report its metadata
   and stop for the operator.
@@ -234,7 +253,7 @@ _(gate: human reviews the code and visible result.)_
 ### 13. Address comments and review — `owner: agent`, `gate: commit-checkpoint-2`
 
 On the operator's request, ingest operator-directed comments
-with the comment-ingest skill (operator-attribution and
+with the `address-comments` skill (operator-attribution and
 `agent`-directed labels for every comment leader). Then run
 the multi-persona code review over `impl_worktree`, passing
 explicit absolute doc paths so the opt-in personas activate:

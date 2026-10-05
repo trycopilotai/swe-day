@@ -176,6 +176,19 @@ class SkillTest(unittest.TestCase):
         self.assertGreaterEqual(len(calls), 4)
         self.assertIn("`<skill-dir>`", read(SKILL))
 
+    def test_step_zero_and_readme_name_the_same_delegated_skills(self) -> None:
+        # Step 0 names each delegated skill once; that name is the
+        # value an operator passes to `acquire --proceed-without`.
+        steps = read(PACKAGE / "references" / "steps.md")
+        preflight = steps.split("### 0. ", 1)[1].split("### 1. ", 1)[0]
+        in_steps = re.findall(r"^\s*\| `([a-z-]+)` \| steps? ", preflight, flags=re.M)
+        section = read(README).split("## Not included", 1)[1].split("\n## ", 1)[0]
+        in_readme = re.findall(r"^- `([a-z-]+)`: ", section, flags=re.M)
+        self.assertEqual(len(in_steps), 9)
+        self.assertEqual(len(set(in_steps)), len(in_steps))
+        self.assertEqual(sorted(in_steps), sorted(in_readme))
+        self.assertIn("nine", " ".join(read(SKILL).split()))
+        self.assertNotIn("first eight", read(README))
 
     def test_step_zero_always_takes_the_lock_and_stops_on_a_missing_skill(
         self,
@@ -186,8 +199,18 @@ class SkillTest(unittest.TestCase):
         self.assertIn("`--lock-path` is omitted, so the script uses its default", flat)
         self.assertIn("--proceed-without", flat)
         self.assertIn("acquire nothing, edit nothing", flat)
+        self.assertIn("A run that stops in step 0 edits nothing and takes no lock", flat)
         skill = " ".join(read(SKILL).split())
         self.assertIn("lock script's default path in the target repository", skill)
+        # A run that stops at the preflight takes no lock, so no
+        # document may say that every run holds or takes it.
+        documents = [README, SKILL, *sorted((PACKAGE / "references").glob("*.md"))]
+        for document in documents:
+            text = " ".join(read(document).split())
+            self.assertIsNone(
+                re.search(r"[Ee]very run (holds|takes|acquires)", text), document.name
+            )
+            self.assertNotIn("on every run:", text, document.name)
         for conditional in (
             "If `ops_repo_lock` is bound",
             "When bound, acquire it",

@@ -32,7 +32,8 @@ repository.
   each human gate has not been measured.
 - Whether an agent now stops at step 0 when a delegated
   skill is missing, and takes the lock on a run with no
-  wrapper, has not been measured.
+  wrapper, has not been measured. The recorded lock session
+  does not use `--proceed-without`.
 - Neither Claude Code nor Codex was started to confirm that
   the invocation names below resolve.
 
@@ -55,31 +56,44 @@ repository.
 
 ## Not included
 
-The skill is a conductor. It sequences other skills and
-protocols that a per-repository wrapper must bind, and none
-of them ships here: a bounded fix loop, a result visualizer,
-a multi-persona code review, an operator-comment ingest, a
-review watcher, a coverage improver, a mutation-testing
-audit, a handoff recorder, and a commit planner. Step 0 of
-the skill lists the first eight and, when one does not
-resolve, stops before taking the lock or editing anything
-and names what is missing. It goes on only if the operator
-explicitly agrees to run without them; the lock then records
-that consent (`acquire --proceed-without <skill>`), and each
-step that needed a missing skill is reported as not run.
-That check is an instruction to the agent: neither program
-looks for the skills.
+The skill is a conductor. It sequences nine other skills,
+and none of them ships here. Step 0 of
+[`steps.md`](skills/swe-day/references/steps.md) names each
+one with the name below:
 
-Every run takes the lock in step 0, with or without a
-wrapper. When no lock path is bound it goes at the lock
-program's default path in the target repository, so the
-next-action banner and the human gates hold for every
-run.
+- `fix-loop`: a bounded fix loop (step 8).
+- `improve-coverage`: a coverage improver (step 10).
+- `plan-commits`: a commit planner, called as
+  `planCommits()` (steps 10, 13 and 16).
+- `mutation-testing`: a mutation-testing audit (step 11).
+- `result-visualizer`: a result visualizer (step 12).
+- `review-watch`: a review watcher (step 12).
+- `address-comments`: an operator-comment ingest (steps 12
+  and 13).
+- `code-review`: a multi-persona code review (step 13).
+- `handoff`: a handoff recorder (step 16).
 
-The steps call four of them by name: `improve-coverage`,
-`review-watch`, `address-comments` and `planCommits()`.
-Those are the names the skill was written against, not
-things you can install from here; a wrapper binds its own.
+A name resolves when a skill of that name is listed among
+the agent session's available skills, or when a
+per-repository wrapper binds the name to a skill or protocol
+that is listed there. When one does not resolve, step 0
+stops before taking the lock or editing anything and names
+what is missing. It goes on only if the operator explicitly
+agrees to run without them; the lock then records that
+consent under the names above
+(`acquire --proceed-without <name>`), and each step that
+needed a missing skill is reported as not run. That check
+is an instruction to the agent: neither program looks for
+the skills, and the lock program records any non-empty name
+it is given.
+
+Every run that goes past the step 0 preflight takes the
+lock at the end of step 0, with or without a wrapper. A run
+that stops at the preflight edits nothing and takes no
+lock. When no lock path is bound, the lock goes at the lock
+program's default path in the target repository (`status`
+prints it as `lock_path`), so the next-action banner and
+the human gates hold for the rest of the run.
 
 ## Use it
 
@@ -97,7 +111,7 @@ fails.
 
 ```sh
 set -eu
-release=v0.1.2
+release=v0.1.3
 install_target="$HOME/.claude/skills/swe-day"
 install_parent="$(dirname "$install_target")"
 mkdir -p "$install_parent"
@@ -134,7 +148,7 @@ the block above is `install_target`.
 
 ```sh
 set -eu
-release=v0.1.2
+release=v0.1.3
 install_target="$HOME/.agents/skills/swe-day"
 install_parent="$(dirname "$install_target")"
 mkdir -p "$install_parent"

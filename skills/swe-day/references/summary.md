@@ -123,20 +123,23 @@ edits, app repos, submodule pointers, and mixed diffs.
 
 ## Missing Delegated Skills
 
-Step 0 lists the delegated skills the day needs. If any is
-missing, the agent acquires nothing, edits nothing, reports
-the missing ones and stops. It goes on only when the
-operator explicitly says to proceed without them; that
-consent is recorded with the lock, and every step that
+Step 0 lists the nine delegated skills the day needs, each
+by one canonical name. If any is missing, the agent
+acquires nothing, edits nothing, reports the missing ones
+and stops. It goes on only when the operator explicitly
+says to proceed without them; that consent is recorded with
+the lock under the canonical names, and every step that
 needed a missing skill is reported `NOT-RUN`.
 
 ## Operational Repo Lock
 
-Every run acquires the swe-day lock in step 0, before any
-edit, whether or not a repo wrapper binds one. Without a
-bound path it is taken at the lock script's default path in
+Every run that goes past the step 0 preflight acquires the
+swe-day lock at the end of step 0, before any edit, whether
+or not a repo wrapper binds one. A run that stops at the
+preflight edits nothing and takes no lock. Without a bound
+path the lock is taken at the lock script's default path in
 the target repository, and the Active Run banner and gates
-apply for the whole run. Other agents may read and may work
+apply from then until the run ends. Other agents may read and may work
 in independent implementation worktrees, but must not mutate that
 operational repo while the lock is held.
 
