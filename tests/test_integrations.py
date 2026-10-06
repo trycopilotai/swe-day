@@ -34,6 +34,14 @@ SKILL = PACKAGE / "SKILL.md"
 README = ROOT / "README.md"
 TRANSCRIPT = ROOT / "evidence" / "transcripts" / "lock-session.txt"
 MANIFEST = ROOT / "evidence" / "demo-manifest.json"
+RENDERER = ROOT / "scripts" / "render_invocation.py"
+INVOCATION_TRANSFORMS = [
+    "replace-plugin-root",
+    "replace-capture-root",
+    "replace-scratch-root",
+    "replace-home",
+    "replace-hostname",
+]
 CLAIM = "swe_day_lock.py refuses to acquire a lock that is held."
 REFUSAL = "swe-day lock already exists; stale locks require human review."
 REPOSITORY = "https://github.com/trycopilotai/" + NAME
@@ -482,6 +490,134 @@ class SupportFilesTest(unittest.TestCase):
 
     def test_contributing_names_the_check_command(self) -> None:
         self.assertIn("make check", read(ROOT / "CONTRIBUTING.md"))
+
+
+class InvocationEvidenceTest(unittest.TestCase):
+    def invocations(self) -> list:
+        return json.loads(read(MANIFEST))["invocations"]
+
+    def test_one_invocation_per_declared_client(self) -> None:
+        entries = self.invocations()
+        self.assertEqual(
+            [(e["product"], e["invocation"]) for e in entries],
+            [("Claude Code", "/swe-day"), ("Codex", "$swe-day")],
+        )
+        for entry in entries:
+            self.assertIs(entry["invoked_the_skill"], True)
+            self.assertTrue(entry["version"] and entry["model"] and entry["outcome"])
+            self.assertRegex(entry["raw_output_sha256"], r"^[0-9a-f]{64}$")
+            self.assertEqual(entry["renderer"], str(RENDERER.relative_to(ROOT)))
+            self.assertEqual(
+                [t["name"] for t in entry["transforms"]], INVOCATION_TRANSFORMS
+            )
+            self.assertIn(entry["invocation"], entry["prompt"])
+
+    def test_transcript_set_and_hashes_match_the_manifest(self) -> None:
+        entries = self.invocations()
+        named = sorted(e["transcript"]["path"] for e in entries)
+        on_disk = sorted(
+            str(path.relative_to(ROOT))
+            for path in (ROOT / "evidence" / "transcripts").glob("*-invocation.txt")
+        )
+        self.assertEqual(named, on_disk)
+        for entry in entries:
+            path = ROOT / entry["transcript"]["path"]
+            self.assertEqual(entry["transcript"]["sha256"], sha256(path))
+            self.assertIn(entry["date"], path.name)
+
+    def test_transcripts_show_the_skill_being_loaded(self) -> None:
+        by_product = {e["product"]: read(ROOT / e["transcript"]["path"]) for e in self.invocations()}
+        self.assertIn('1. Skill {"args":', by_product["Claude Code"])
+        self.assertIn('"skill": "swe-day:swe-day"}', by_product["Claude Code"])
+        self.assertIn(".agents/skills/swe-day/SKILL.md", by_product["Codex"])
+
+    def test_transcripts_carry_only_replaced_paths(self) -> None:
+        for entry in self.invocations():
+            text = read(ROOT / entry["transcript"]["path"])
+            self.assertIn(entry["prompt"].rstrip("\n"), text)
+            # Spelled in pieces so that a search of this repository
+            # for a machine path finds only real ones.
+            users = "Use" + "rs"
+            leaks = ("/%s/" % users, "-%s-" % users, "/private/", "/var/folders", "/home/", "claude-5" + "01")
+            for leak in leaks:
+                self.assertNotIn(leak, text)
+
+    def test_readme_links_both_transcripts_and_names_the_transforms(self) -> None:
+        text = read(README)
+        section = text.split("### Agent invocations", 1)[1].split("\n## ", 1)[0]
+        for entry in self.invocations():
+            self.assertIn("](%s)" % entry["transcript"]["path"], section)
+        for name in INVOCATION_TRANSFORMS:
+            self.assertIn("`%s`" % name, section)
+        self.assertIn("not a benchmark", section)
+
+
+class RendererTest(unittest.TestCase):
+    def render(self, client: str, events: list, *extra: str) -> str:
+        with tempfile.TemporaryDirectory() as raw:
+            prompt = Path(raw) / "prompt.txt"
+            prompt.write_text("Use /swe-day here.\n", encoding="utf-8")
+            stream = Path(raw) / "raw.jsonl"
+            stream.write_text(
+                "".join(json.dumps(event) + "\n" for event in events), encoding="utf-8"
+            )
+            result = subprocess.run(
+                [sys.executable, str(RENDERER), "--client", client, "--prompt", str(prompt),
+                 "--root", "/h/me/fix", "--home", "/h/me", *extra, str(stream)],
+                capture_output=True, text=True, check=True,
+            )
+        return result.stdout
+
+    def claude_events(self, *paths: str) -> list:
+        uses = [
+            {"type": "tool_use", "id": "t%d" % i, "name": "Read", "input": {"file_path": path}}
+            for i, path in enumerate(paths)
+        ]
+        results = [
+            {"type": "tool_result", "tool_use_id": "t%d" % i, "is_error": i == 1}
+            for i in range(len(paths))
+        ]
+        return [
+            {"type": "system", "subtype": "init", "model": "m1", "claude_code_version": "9.9"},
+            {"type": "assistant", "message": {"content": uses}},
+            {"type": "user", "message": {"content": results}},
+            {"type": "result", "result": "Stopped at step 0 on box.local."},
+        ]
+
+    def test_claude_code_paths_are_replaced_as_whole_prefixes(self) -> None:
+        text = self.render(
+            "claude-code",
+            self.claude_events(
+                "/h/me/fix/cli.py",
+                "/h/me/fix2/x",
+                "/h/me/plug/skills/s/SKILL.md",
+                "/private/tmp/claude-1000/-h-me-slug/tasks/a.out",
+                "/h/me/other",
+            ),
+            "--plugin-root", "/h/me/plug", "--hostname", "box.local", "--hostname", "box",
+        )
+        self.assertIn("client: Claude Code 9.9\nmodel: m1\n", text)
+        self.assertIn("## prompt\n\nUse /swe-day here.\n", text)
+        self.assertIn('1. Read {"file_path": "/work/cli.py"}\n  status: ok', text)
+        self.assertIn('2. Read {"file_path": "~/fix2/x"}\n  status: error', text)
+        self.assertIn('"/plugin/skills/s/SKILL.md"', text)
+        self.assertIn('"/scratch/tasks/a.out"', text)
+        self.assertIn('"~/other"', text)
+        self.assertTrue(text.endswith("## final message\n\nStopped at step 0 on host.\n"))
+
+    def test_codex_commands_keep_exit_status_and_are_cut_consistently(self) -> None:
+        long = "x" * 400
+        text = self.render(
+            "codex",
+            [
+                {"type": "item.completed", "item": {"type": "command_execution",
+                 "command": "cat " + long, "status": "completed", "exit_code": 0}},
+                {"type": "item.completed", "item": {"type": "agent_message", "text": "Done."}},
+            ],
+        )
+        self.assertIn("...[104 more characters]", text)
+        self.assertIn("  status: completed, exit 0", text)
+        self.assertTrue(text.endswith("## final message\n\nDone.\n"))
 
 
 if __name__ == "__main__":

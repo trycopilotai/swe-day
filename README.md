@@ -27,15 +27,18 @@ repository.
 **Not measured, stated up front.**
 
 - No agent ran a SWE day to produce the evidence here. The
-  transcript shows only the lock and the banner.
+  lock-session transcript shows only the lock and the
+  banner, and both agent invocations under Evidence stopped
+  at step 0.
 - Whether an agent that follows `SKILL.md` actually stops at
-  each human gate has not been measured.
-- Whether an agent now stops at step 0 when a delegated
-  skill is missing, and takes the lock on a run with no
-  wrapper, has not been measured. The recorded lock session
+  each human gate after step 0 has not been measured.
+- Whether an agent takes the lock on a run with no wrapper
+  that goes past step 0 has not been measured. Neither
+  invocation went past step 0, and the recorded lock session
   does not use `--proceed-without`.
-- Neither Claude Code nor Codex was started to confirm that
-  the invocation names below resolve.
+- The invocations loaded the skill from a plugin directory
+  (Claude Code) and from a repository's `.agents/skills/`
+  (Codex), not through the install blocks below.
 
 ## What is in it
 
@@ -124,7 +127,7 @@ fails.
 
 ```sh
 set -eu
-release=v0.1.6
+release=v0.1.7
 install_target="$HOME/.claude/skills/swe-day"
 install_parent="$(dirname "$install_target")"
 mkdir -p "$install_parent"
@@ -161,7 +164,7 @@ the block above is `install_target`.
 
 ```sh
 set -eu
-release=v0.1.6
+release=v0.1.7
 install_target="$HOME/.agents/skills/swe-day"
 install_parent="$(dirname "$install_target")"
 mkdir -p "$install_parent"
@@ -225,6 +228,31 @@ transcript.
 `make check` runs the programs' own tests and a packaging
 contract that ties this file, both plugin manifests, the
 transcript and the demo images to each other.
+
+### Agent invocations
+
+Each client was started once on one synthetic fixture: a
+small Python repository and a separate ops repository, with
+work item D01 (add a `--version` flag to `cli.py`) and none
+of the nine delegated skills installed. This is one run per
+client, not a benchmark.
+
+- [`evidence/transcripts/2026-10-05-claude-code-invocation.txt`](evidence/transcripts/2026-10-05-claude-code-invocation.txt):
+  Claude Code 2.1.220, invoked with `/swe-day`. It loaded the
+  skill, stopped at step 0 naming all nine missing skills,
+  took no lock, edited nothing, and asked whether to proceed
+  without them.
+- [`evidence/transcripts/2026-10-05-codex-invocation.txt`](evidence/transcripts/2026-10-05-codex-invocation.txt):
+  Codex 0.146.0, invoked with `$swe-day`. Same stop at step
+  0, with no lock and no edits.
+
+`scripts/render_invocation.py` wrote both from the clients'
+raw output, which is not committed. Its only edits are the
+ones `evidence/demo-manifest.json` declares for each
+invocation: `replace-plugin-root`, `replace-capture-root`,
+`replace-scratch-root`, `replace-home` and
+`replace-hostname`. The manifest also records each model,
+prompt and outcome and both files' SHA-256.
 
 ## Contributing
 

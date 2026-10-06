@@ -46,5 +46,88 @@
       }
     ],
     "note": "scripts/record_session.py wrote each command line before running it and each exit status line from the command's exit status; everything between is the programs' output."
-  }
+  },
+  "invocations": [
+    {
+      "product": "Claude Code",
+      "version": "2.1.220",
+      "model": "claude-sonnet-5",
+      "skill_source": "--plugin-dir pointing at a clone of this repository at v0.1.6",
+      "invocation": "/swe-day",
+      "prompt": "Use /swe-day to run a SWE day on work item D01: add a --version flag to cli.py. This directory is the implementation repository; ops/ is the ops repository (timeline: ops/timeline.md, timesheet: ops/timesheet.md). I am the operator, Test. Stay inside this directory.",
+      "fixture": "A synthetic git repository holding a one-file Python greeter (cli.py, one unittest, make check), with a separate synthetic ops repository at ops/ (timeline.md listing work item D01, handoff.md, timesheet.md) and local bare remotes only. No wrapper and none of the nine delegated skills were present.",
+      "date": "2026-10-05",
+      "transcript": {
+        "path": "evidence/transcripts/2026-10-05-claude-code-invocation.txt",
+        "sha256": "1066c22dbfeeb12722044586e68bc5d4de845bc931052d84b50b975b591217cf"
+      },
+      "raw_output_sha256": "dbda206a6b23c12727c97bf40ad94b35620bad80b2edeed02e20d6d75a1dd268",
+      "renderer": "scripts/render_invocation.py",
+      "transforms": [
+        {
+          "name": "replace-plugin-root",
+          "what": "The absolute path of the directory the client loaded the skill from was replaced with /plugin."
+        },
+        {
+          "name": "replace-capture-root",
+          "what": "The fixture's absolute path was replaced with /work."
+        },
+        {
+          "name": "replace-scratch-root",
+          "what": "A client scratch directory prefix /private/tmp/claude-<uid>/<slug> would be replaced with /scratch; neither raw output contained one."
+        },
+        {
+          "name": "replace-home",
+          "what": "The home directory was replaced with ~."
+        },
+        {
+          "name": "replace-hostname",
+          "what": "The recording machine's hostname was replaced with host."
+        }
+      ],
+      "invoked_the_skill": true,
+      "outcome": "Loaded the skill (Skill swe-day:swe-day), stopped at the step 0 preflight naming all nine missing delegated skills, took no lock, edited nothing, and asked the operator whether to proceed without them."
+    },
+    {
+      "product": "Codex",
+      "version": "0.146.0",
+      "model": "gpt-5.6-sol",
+      "model_source": "Codex's local session log for this thread; the --json output does not name the model.",
+      "skill_source": "skills/swe-day/ of this repository at v0.1.6, copied into the fixture's .agents/skills/swe-day/ and committed there",
+      "invocation": "$swe-day",
+      "prompt": "Use $swe-day to run a SWE day on work item D01: add a --version flag to cli.py. This directory is the implementation repository; ops/ is the ops repository (timeline: ops/timeline.md, timesheet: ops/timesheet.md). I am the operator, Test. Stay inside this directory.",
+      "fixture": "A synthetic git repository holding a one-file Python greeter (cli.py, one unittest, make check), with a separate synthetic ops repository at ops/ (timeline.md listing work item D01, handoff.md, timesheet.md) and local bare remotes only. No wrapper and none of the nine delegated skills were present.",
+      "date": "2026-10-05",
+      "transcript": {
+        "path": "evidence/transcripts/2026-10-05-codex-invocation.txt",
+        "sha256": "5dca3ad6209379c0eadbcf5f7e3adbf497df648a7be9dca2c8bbe075d1893e4f"
+      },
+      "raw_output_sha256": "e99295ce61b8737c1cc019152f3d7df0236b78f2ae9055eb537a1155d05f57d8",
+      "renderer": "scripts/render_invocation.py",
+      "transforms": [
+        {
+          "name": "replace-plugin-root",
+          "what": "The absolute path of the directory the client loaded the skill from was replaced with /plugin."
+        },
+        {
+          "name": "replace-capture-root",
+          "what": "The fixture's absolute path was replaced with /work."
+        },
+        {
+          "name": "replace-scratch-root",
+          "what": "A client scratch directory prefix /private/tmp/claude-<uid>/<slug> would be replaced with /scratch; neither raw output contained one."
+        },
+        {
+          "name": "replace-home",
+          "what": "The home directory was replaced with ~."
+        },
+        {
+          "name": "replace-hostname",
+          "what": "The recording machine's hostname was replaced with host."
+        }
+      ],
+      "invoked_the_skill": true,
+      "outcome": "Read .agents/skills/swe-day/SKILL.md and references/steps.md, stopped at the step 0 preflight naming all nine missing delegated skills, took no lock, edited nothing, and asked the operator whether to proceed without them."
+    }
+  ]
 }
