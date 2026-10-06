@@ -550,6 +550,14 @@ class InvocationEvidenceTest(unittest.TestCase):
         for name in INVOCATION_TRANSFORMS:
             self.assertIn("`%s`" % name, section)
         self.assertIn("not a benchmark", section)
+        self.assertIn("`...[N more characters]`", section)
+
+    def test_rendering_rule_is_declared_and_matches_the_renderer(self) -> None:
+        renderer = load(RENDERER, "render_invocation")
+        for entry in self.invocations():
+            self.assertIn("longer than %d characters" % renderer.LIMIT, entry["rendering"])
+            self.assertIn("...[N more characters]", entry["rendering"])
+            self.assertIsInstance(entry["delegated_skills_listed"], list)
 
 
 class RendererTest(unittest.TestCase):

@@ -127,7 +127,7 @@ fails.
 
 ```sh
 set -eu
-release=v0.1.7
+release=v0.1.8
 install_target="$HOME/.claude/skills/swe-day"
 install_parent="$(dirname "$install_target")"
 mkdir -p "$install_parent"
@@ -164,7 +164,7 @@ the block above is `install_target`.
 
 ```sh
 set -eu
-release=v0.1.7
+release=v0.1.8
 install_target="$HOME/.agents/skills/swe-day"
 install_parent="$(dirname "$install_target")"
 mkdir -p "$install_parent"
@@ -231,28 +231,40 @@ transcript and the demo images to each other.
 
 ### Agent invocations
 
-Each client was started once on one synthetic fixture: a
-small Python repository and a separate ops repository, with
-work item D01 (add a `--version` flag to `cli.py`) and none
-of the nine delegated skills installed. This is one run per
+Each client was started once, at v0.1.6, on one synthetic
+fixture: a small Python repository and a separate ops
+repository, with work item D01 (add a `--version` flag to
+`cli.py`), no wrapper, and none of the nine delegated skills
+supplied by the fixture or this package. This is one run per
 client, not a benchmark.
 
 - [`evidence/transcripts/2026-10-05-claude-code-invocation.txt`](evidence/transcripts/2026-10-05-claude-code-invocation.txt):
   Claude Code 2.1.220, invoked with `/swe-day`. It loaded the
-  skill, stopped at step 0 naming all nine missing skills,
-  took no lock, edited nothing, and asked whether to proceed
-  without them.
+  skill, stopped at step 0, took no lock, edited nothing, and
+  asked whether to proceed without the missing skills. It
+  named all nine as missing, but the session listed a skill
+  named `code-review` that ships with Claude Code, so by step
+  0's rule only eight were.
 - [`evidence/transcripts/2026-10-05-codex-invocation.txt`](evidence/transcripts/2026-10-05-codex-invocation.txt):
-  Codex 0.146.0, invoked with `$swe-day`. Same stop at step
-  0, with no lock and no edits.
+  Codex 0.146.0, invoked with `$swe-day`. It stopped at step
+  0 naming all nine, none of which the session listed, with
+  no lock and no edits.
 
 `scripts/render_invocation.py` wrote both from the clients'
-raw output, which is not committed. Its only edits are the
-ones `evidence/demo-manifest.json` declares for each
-invocation: `replace-plugin-root`, `replace-capture-root`,
-`replace-scratch-root`, `replace-home` and
-`replace-hostname`. The manifest also records each model,
-prompt and outcome and both files' SHA-256.
+raw output, which is not committed. It keeps each tool
+call's name, arguments and status, not the tool's output,
+and cuts any argument string longer than 300 characters,
+marking the cut `...[N more characters]`. Its only other
+edits are the ones `evidence/demo-manifest.json` declares
+for each invocation: `replace-plugin-root`,
+`replace-capture-root`, `replace-scratch-root`,
+`replace-home` and `replace-hostname`. The manifest also
+records each model, prompt and outcome and both files'
+SHA-256.
+
+**Known limits.** Step 0 resolves a delegated skill by name
+alone, so an unrelated skill with the same name, such as
+Claude Code's own `code-review`, counts as resolved.
 
 ## Contributing
 

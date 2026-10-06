@@ -55,7 +55,7 @@
       "skill_source": "--plugin-dir pointing at a clone of this repository at v0.1.6",
       "invocation": "/swe-day",
       "prompt": "Use /swe-day to run a SWE day on work item D01: add a --version flag to cli.py. This directory is the implementation repository; ops/ is the ops repository (timeline: ops/timeline.md, timesheet: ops/timesheet.md). I am the operator, Test. Stay inside this directory.",
-      "fixture": "A synthetic git repository holding a one-file Python greeter (cli.py, one unittest, make check), with a separate synthetic ops repository at ops/ (timeline.md listing work item D01, handoff.md, timesheet.md) and local bare remotes only. No wrapper and none of the nine delegated skills were present.",
+      "fixture": "A synthetic git repository holding a one-file Python greeter (cli.py, one unittest, make check), with a separate synthetic ops repository at ops/ (timeline.md listing work item D01, handoff.md, timesheet.md) and local bare remotes only. No wrapper was present, and neither the fixture nor this package supplied any of the nine delegated skills.",
       "date": "2026-10-05",
       "transcript": {
         "path": "evidence/transcripts/2026-10-05-claude-code-invocation.txt",
@@ -86,7 +86,12 @@
         }
       ],
       "invoked_the_skill": true,
-      "outcome": "Loaded the skill (Skill swe-day:swe-day), stopped at the step 0 preflight naming all nine missing delegated skills, took no lock, edited nothing, and asked the operator whether to proceed without them."
+      "outcome": "Loaded the skill (Skill swe-day:swe-day) and stopped at the step 0 preflight, took no lock, edited nothing, and asked the operator whether to proceed without the missing skills. It named all nine as missing, although a skill named code-review was listed in the session.",
+      "rendering": "Besides the transforms, scripts/render_invocation.py cuts every tool-call argument string longer than 300 characters and marks the cut as ...[N more characters]. It writes only each call's name, arguments and status, not tool output.",
+      "delegated_skills_listed": [
+        "code-review"
+      ],
+      "delegated_skills_note": "The session's available skills included one named code-review, bundled with Claude Code and not the multi-persona review step 0 means. By step 0's rule a listed name resolves, so eight of the nine were missing; the agent reported all nine missing."
     },
     {
       "product": "Codex",
@@ -96,7 +101,7 @@
       "skill_source": "skills/swe-day/ of this repository at v0.1.6, copied into the fixture's .agents/skills/swe-day/ and committed there",
       "invocation": "$swe-day",
       "prompt": "Use $swe-day to run a SWE day on work item D01: add a --version flag to cli.py. This directory is the implementation repository; ops/ is the ops repository (timeline: ops/timeline.md, timesheet: ops/timesheet.md). I am the operator, Test. Stay inside this directory.",
-      "fixture": "A synthetic git repository holding a one-file Python greeter (cli.py, one unittest, make check), with a separate synthetic ops repository at ops/ (timeline.md listing work item D01, handoff.md, timesheet.md) and local bare remotes only. No wrapper and none of the nine delegated skills were present.",
+      "fixture": "A synthetic git repository holding a one-file Python greeter (cli.py, one unittest, make check), with a separate synthetic ops repository at ops/ (timeline.md listing work item D01, handoff.md, timesheet.md) and local bare remotes only. No wrapper was present, and neither the fixture nor this package supplied any of the nine delegated skills.",
       "date": "2026-10-05",
       "transcript": {
         "path": "evidence/transcripts/2026-10-05-codex-invocation.txt",
@@ -127,7 +132,9 @@
         }
       ],
       "invoked_the_skill": true,
-      "outcome": "Read .agents/skills/swe-day/SKILL.md and references/steps.md, stopped at the step 0 preflight naming all nine missing delegated skills, took no lock, edited nothing, and asked the operator whether to proceed without them."
+      "outcome": "Read .agents/skills/swe-day/SKILL.md and references/steps.md, stopped at the step 0 preflight naming all nine missing delegated skills (none was listed in the session), took no lock, edited nothing, and asked the operator whether to proceed without them.",
+      "rendering": "Besides the transforms, scripts/render_invocation.py cuts every tool-call argument string longer than 300 characters and marks the cut as ...[N more characters]. It writes only each call's name, arguments and status, not tool output.",
+      "delegated_skills_listed": []
     }
   ]
 }
