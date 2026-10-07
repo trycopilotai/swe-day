@@ -64,7 +64,10 @@ and none of them ships here. Step 0 of
 [`steps.md`](skills/swe-day/references/steps.md) names each
 one with the name below:
 
-- `fix-loop`: a bounded fix loop (step 8).
+- `replx`: a bounded fix loop (step 8), published at
+  [trycopilotai/replx](https://github.com/trycopilotai/replx)
+  and listed in
+  [trycopilotai/skills](https://github.com/trycopilotai/skills).
 - `improve-coverage`: a coverage improver (step 10).
 - `plan-commits`: a commit planner, called as
   `planCommits()` (steps 10, 13 and 16).
@@ -127,7 +130,7 @@ fails.
 
 ```sh
 set -eu
-release=v0.1.8
+release=v0.1.9
 install_target="$HOME/.claude/skills/swe-day"
 install_parent="$(dirname "$install_target")"
 mkdir -p "$install_parent"
@@ -164,7 +167,7 @@ the block above is `install_target`.
 
 ```sh
 set -eu
-release=v0.1.8
+release=v0.1.9
 install_target="$HOME/.agents/skills/swe-day"
 install_parent="$(dirname "$install_target")"
 mkdir -p "$install_parent"
@@ -231,24 +234,30 @@ transcript and the demo images to each other.
 
 ### Agent invocations
 
-Each client was started once, at v0.1.6, on one synthetic
-fixture: a small Python repository and a separate ops
-repository, with work item D01 (add a `--version` flag to
-`cli.py`), no wrapper, and none of the nine delegated skills
-supplied by the fixture or this package. This is one run per
-client, not a benchmark.
+Each client was started once, with the v0.1.9 skill text, on
+one synthetic fixture: a small Python repository and a
+separate ops repository, with work item D01 (add a
+`--version` flag to `cli.py`) and no wrapper. `replx`, as
+[trycopilotai/skills](https://github.com/trycopilotai/skills)
+v0.6.0 ships it, was installed beside the skill; none of the
+other eight delegated skills was supplied. This is one run
+per client, not a benchmark.
 
-- [`evidence/transcripts/2026-10-05-claude-code-invocation.txt`](evidence/transcripts/2026-10-05-claude-code-invocation.txt):
+- [`evidence/transcripts/2026-10-07-claude-code-invocation.txt`](evidence/transcripts/2026-10-07-claude-code-invocation.txt):
   Claude Code 2.1.220, invoked with `/swe-day`. It loaded the
-  skill, stopped at step 0, took no lock, edited nothing, and
-  asked whether to proceed without the missing skills. It
-  named all nine as missing, but the session listed a skill
-  named `code-review` that ships with Claude Code, so by step
-  0's rule only eight were.
-- [`evidence/transcripts/2026-10-05-codex-invocation.txt`](evidence/transcripts/2026-10-05-codex-invocation.txt):
-  Codex 0.146.0, invoked with `$swe-day`. It stopped at step
-  0 naming all nine, none of which the session listed, with
+  skill, found `replx` for step 8, stopped at step 0, took no
+  lock, edited nothing, and asked whether to proceed without
+  the missing skills. It named eight as missing, but the
+  session listed a skill named `code-review` that ships with
+  Claude Code, so by step 0's rule only seven were.
+- [`evidence/transcripts/2026-10-07-codex-invocation.txt`](evidence/transcripts/2026-10-07-codex-invocation.txt):
+  Codex 0.146.0, invoked with `$swe-day`. It reported `replx`
+  available and stopped at step 0 naming the other eight, with
   no lock and no edits.
+
+The runs recorded at v0.1.6, before step 8 named `replx`,
+are in this repository's history at
+[v0.1.8](https://github.com/trycopilotai/swe-day/tree/v0.1.8/evidence/transcripts).
 
 `scripts/render_invocation.py` wrote both from the clients'
 raw output, which is not committed. It keeps each tool

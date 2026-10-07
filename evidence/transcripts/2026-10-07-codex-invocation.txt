@@ -1,0 +1,35 @@
+client: Codex
+
+## prompt
+
+Use $swe-day to run a SWE day on work item D01: add a --version flag to cli.py. This directory is the implementation repository; ops/ is the ops repository (timeline: ops/timeline.md, timesheet: ops/timesheet.md). I am the operator, Test. Stay inside this directory.
+
+## tool calls
+
+1. command_execution {"command": "/bin/zsh -lc \"sed -n '1,260p' .agents/skills/swe-day/SKILL.md && sed -n '1,360p' .agents/skills/swe-day/references/steps.md\""}
+  status: completed, exit 0
+2. command_execution {"command": "/bin/zsh -lc \"wc -l .agents/skills/swe-day/SKILL.md .agents/skills/swe-day/references/steps.md && sed -n '261,620p' .agents/skills/swe-day/SKILL.md && rg -n --hidden --glob '\"'!'\"\\\\.git/**' --glob '\"'!ops/.git/**'\"' '(swe-day|doSwe|timeline_doc|D01|improve-coverage|plan-commits|mutation-testing|resu...[68 more characters]"}
+  status: completed, exit 0
+3. command_execution {"command": "/bin/zsh -lc \"pwd && rg --files -g 'AGENTS.md' -g '\"'!ops/.git/**'\"' -g '\"'!'\"\\\\.git/**' -g '*.md' -g 'Makefile' -g 'pyproject.toml' -g 'requirements*.txt' -g 'cli.py' -g 'tests/**' | sort && git status --short --branch && git worktree list --porcelain && git -C ops status --short --branch && python...[257 more characters]"}
+  status: completed, exit 0
+
+## final message
+
+Preflight stopped before acquiring a lock or changing files.
+
+- D01 exists, is `todo`, and has no prerequisites.
+- Implementation and `ops/` repositories are clean.
+- `replx` is available.
+- Required skills missing:
+  - `improve-coverage` — step 10
+  - `plan-commits` — steps 10, 13, 16
+  - `mutation-testing` — step 11
+  - `result-visualizer` — step 12
+  - `review-watch` — step 12
+  - `address-comments` — steps 10, 12, 13
+  - `code-review` — steps 10, 13
+  - `handoff` — step 16
+
+The `swe-day` protocol requires explicit consent to continue without them; affected steps will be recorded as `NOT-RUN`.
+
+Reply **1** to proceed without all eight missing skills, or **2** to stop and install/provide them.

@@ -52,21 +52,21 @@
       "product": "Claude Code",
       "version": "2.1.220",
       "model": "claude-sonnet-5",
-      "skill_source": "--plugin-dir pointing at a clone of this repository at v0.1.6",
+      "skill_source": "Two --plugin-dir directories: this repository's tracked files at the v0.1.9 skill text (the run preceded the release commit; skills/swe-day/ is byte-identical to v0.1.9), and plugins/replx from trycopilotai/skills v0.6.0, which vendors replx v0.2.0",
       "invocation": "/swe-day",
       "prompt": "Use /swe-day to run a SWE day on work item D01: add a --version flag to cli.py. This directory is the implementation repository; ops/ is the ops repository (timeline: ops/timeline.md, timesheet: ops/timesheet.md). I am the operator, Test. Stay inside this directory.",
-      "fixture": "A synthetic git repository holding a one-file Python greeter (cli.py, one unittest, make check), with a separate synthetic ops repository at ops/ (timeline.md listing work item D01, handoff.md, timesheet.md) and local bare remotes only. No wrapper was present, and neither the fixture nor this package supplied any of the nine delegated skills.",
-      "date": "2026-10-05",
+      "fixture": "A synthetic git repository holding a one-file Python greeter (cli.py, one unittest, make check), with a separate synthetic ops repository at ops/ (timeline.md listing work item D01, handoff.md, timesheet.md) and local bare remotes only. No wrapper was present. replx was installed beside swe-day; none of the other eight delegated skills was supplied by the fixture or this package.",
+      "date": "2026-10-07",
       "transcript": {
-        "path": "evidence/transcripts/2026-10-05-claude-code-invocation.txt",
-        "sha256": "1066c22dbfeeb12722044586e68bc5d4de845bc931052d84b50b975b591217cf"
+        "path": "evidence/transcripts/2026-10-07-claude-code-invocation.txt",
+        "sha256": "df5ab826383a68f9c2c2c878a627f2581ed31e4788f1a9bdd336fb5d0a28e14a"
       },
-      "raw_output_sha256": "dbda206a6b23c12727c97bf40ad94b35620bad80b2edeed02e20d6d75a1dd268",
+      "raw_output_sha256": "21dcdad6ebaa7efd38a56dc26ebbbb885cc26e55cd369da0bdb289f189598cbf",
       "renderer": "scripts/render_invocation.py",
       "transforms": [
         {
           "name": "replace-plugin-root",
-          "what": "The absolute path of the directory the client loaded the skill from was replaced with /plugin."
+          "what": "The absolute path of the directory the client loaded the skills from was replaced with /plugin: for Claude Code the parent of the two --plugin-dir directories, so swe-day and replx appear as /plugin/swe-day and /plugin/replx; for Codex the fixture's skills directory, from which Codex loaded both skills."
         },
         {
           "name": "replace-capture-root",
@@ -86,33 +86,34 @@
         }
       ],
       "invoked_the_skill": true,
-      "outcome": "Loaded the skill (Skill swe-day:swe-day) and stopped at the step 0 preflight, took no lock, edited nothing, and asked the operator whether to proceed without the missing skills. It named all nine as missing, although a skill named code-review was listed in the session.",
+      "outcome": "Loaded the skill (Skill swe-day:swe-day) and stopped at the step 0 preflight: replx resolved for step 8, eight skills were reported missing, it took no lock, edited nothing, and asked the operator whether to proceed without them. It reported code-review missing, although a skill named code-review was listed in the session.",
       "rendering": "Besides the transforms, scripts/render_invocation.py cuts every tool-call argument string longer than 300 characters and marks the cut as ...[N more characters]. It writes only each call's name, arguments and status, not tool output.",
       "delegated_skills_listed": [
+        "replx",
         "code-review"
       ],
-      "delegated_skills_note": "The session's available skills included one named code-review, bundled with Claude Code and not the multi-persona review step 0 means. By step 0's rule a listed name resolves, so eight of the nine were missing; the agent reported all nine missing."
+      "delegated_skills_note": "The session's available skills included replx:replx and one named code-review, bundled with Claude Code and not the multi-persona review step 0 means. By step 0's rule a listed name resolves, so seven of the nine were missing; the agent reported eight missing."
     },
     {
       "product": "Codex",
       "version": "0.146.0",
       "model": "gpt-5.6-sol",
       "model_source": "Codex's local session log for this thread; the --json output does not name the model.",
-      "skill_source": "skills/swe-day/ of this repository at v0.1.6, copied into the fixture's .agents/skills/swe-day/ and committed there",
+      "skill_source": "skills/swe-day/ of this repository at the v0.1.9 skill text and skills/replx/ from trycopilotai/skills v0.6.0 (replx v0.2.0), both copied into the fixture's .agents/skills/ and committed there",
       "invocation": "$swe-day",
       "prompt": "Use $swe-day to run a SWE day on work item D01: add a --version flag to cli.py. This directory is the implementation repository; ops/ is the ops repository (timeline: ops/timeline.md, timesheet: ops/timesheet.md). I am the operator, Test. Stay inside this directory.",
-      "fixture": "A synthetic git repository holding a one-file Python greeter (cli.py, one unittest, make check), with a separate synthetic ops repository at ops/ (timeline.md listing work item D01, handoff.md, timesheet.md) and local bare remotes only. No wrapper was present, and neither the fixture nor this package supplied any of the nine delegated skills.",
-      "date": "2026-10-05",
+      "fixture": "A synthetic git repository holding a one-file Python greeter (cli.py, one unittest, make check), with a separate synthetic ops repository at ops/ (timeline.md listing work item D01, handoff.md, timesheet.md) and local bare remotes only. No wrapper was present. replx was installed beside swe-day; none of the other eight delegated skills was supplied by the fixture or this package.",
+      "date": "2026-10-07",
       "transcript": {
-        "path": "evidence/transcripts/2026-10-05-codex-invocation.txt",
-        "sha256": "5dca3ad6209379c0eadbcf5f7e3adbf497df648a7be9dca2c8bbe075d1893e4f"
+        "path": "evidence/transcripts/2026-10-07-codex-invocation.txt",
+        "sha256": "3b734b0db925de8f4ed128090854e356c4ff3e734b0a884cc38980c2a07e8495"
       },
-      "raw_output_sha256": "e99295ce61b8737c1cc019152f3d7df0236b78f2ae9055eb537a1155d05f57d8",
+      "raw_output_sha256": "bb410b96bdc8e32fafded0462a244fc036faac3c7fca98382964574aca898ca6",
       "renderer": "scripts/render_invocation.py",
       "transforms": [
         {
           "name": "replace-plugin-root",
-          "what": "The absolute path of the directory the client loaded the skill from was replaced with /plugin."
+          "what": "The absolute path of the directory the client loaded the skills from was replaced with /plugin: for Claude Code the parent of the two --plugin-dir directories, so swe-day and replx appear as /plugin/swe-day and /plugin/replx; for Codex the fixture's skills directory, from which Codex loaded both skills."
         },
         {
           "name": "replace-capture-root",
@@ -132,9 +133,11 @@
         }
       ],
       "invoked_the_skill": true,
-      "outcome": "Read .agents/skills/swe-day/SKILL.md and references/steps.md, stopped at the step 0 preflight naming all nine missing delegated skills (none was listed in the session), took no lock, edited nothing, and asked the operator whether to proceed without them.",
+      "outcome": "Read .agents/skills/swe-day/SKILL.md and references/steps.md, reported replx available, stopped at the step 0 preflight naming the other eight delegated skills as missing, took no lock, edited nothing, and asked the operator whether to proceed without them.",
       "rendering": "Besides the transforms, scripts/render_invocation.py cuts every tool-call argument string longer than 300 characters and marks the cut as ...[N more characters]. It writes only each call's name, arguments and status, not tool output.",
-      "delegated_skills_listed": []
+      "delegated_skills_listed": [
+        "replx"
+      ]
     }
   ]
 }

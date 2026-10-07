@@ -1,0 +1,64 @@
+client: Claude Code 2.1.220
+model: claude-sonnet-5
+
+## prompt
+
+Use /swe-day to run a SWE day on work item D01: add a --version flag to cli.py. This directory is the implementation repository; ops/ is the ops repository (timeline: ops/timeline.md, timesheet: ops/timesheet.md). I am the operator, Test. Stay inside this directory.
+
+## tool calls
+
+1. Skill {"args": "work_item=D01 (\"add a --version flag to cli.py\"); ops_repo=ops/ (timeline: ops/timeline.md, timesheet: ops/timesheet.md); operator=Test; impl_worktree=this directory (implementation repository). Stay inside this directory. Never push.", "skill": "swe-day:swe-day"}
+  status: ok
+2. Read {"file_path": "/plugin/swe-day/skills/swe-day/references/steps.md"}
+  status: ok
+3. Bash {"command": "pwd && echo \"---\" && ls -la && echo \"---ops---\" && ls -la ops/ 2>&1 && echo \"---git status main repo---\" && git status && echo \"---git worktree list---\" && git worktree list", "description": "Inspect repo structure and ops directory"}
+  status: ok
+4. Read {"file_path": "/work/ops/timeline.md"}
+  status: ok
+5. Read {"file_path": "/work/ops/handoff.md"}
+  status: ok
+6. Read {"file_path": "/work/ops/timesheet.md"}
+  status: ok
+7. Read {"file_path": "/work/AGENTS.md"}
+  status: ok
+8. Read {"file_path": "/work/cli.py"}
+  status: ok
+9. Read {"file_path": "/work/Makefile"}
+  status: ok
+10. Glob {"path": "/plugin/swe-day/skills/swe-day", "pattern": "**/swe_day_lock.py"}
+  status: ok
+11. Bash {"command": "python3 /plugin/swe-day/skills/swe-day/scripts/swe_day_lock.py --repo ops status", "description": "Check swe-day lock status in ops repo (read-only)"}
+  status: ok
+
+## final message
+
+Preflight (step 0) evidence:
+
+**Repo checks — pass**
+- `impl_worktree` = this directory, main worktree of the shared implementation repo (`git worktree list` confirms it's a registered worktree on `main`, clean).
+- `ops_repo` = `ops/` — its own git repo (separate `.git`), not single-branch-conflated with impl. `timeline.md`, `handoff.md`, `timesheet.md` all readable.
+- `AGENTS.md` off-limits note: `ops/` is the operator's repo, not part of this one — don't edit it from here; never push.
+- No existing swe-day lock (`locked: false`, resolved default path `ops/.agents/locks/swe-day.lock`).
+- D01 row: *"Add a `--version` flag to `cli.py` that prints `greet 0.1.0` and exits 0, with a test."* — status `todo`, depends on `none`.
+
+**Delegated skill check — hard stop**
+
+Of the 9 skills step 0 requires, only one resolves against this session's available-skills list:
+
+| Skill | Serves | Resolves? |
+| --- | --- | --- |
+| `replx` | step 8 (fix loop) | ✅ `replx:replx` |
+| `improve-coverage` | step 10 | ❌ not available |
+| `plan-commits` | steps 10, 13, 16 | ❌ not available |
+| `mutation-testing` | step 11 | ❌ not available |
+| `result-visualizer` | step 12 | ❌ not available |
+| `review-watch` | step 12 | ❌ not available |
+| `address-comments` | steps 10, 12, 13 | ❌ not available |
+| `code-review` | steps 10, 13 | ❌ not available (the listed `review`/`security-review` skills serve different purposes — PR review and security review, not the multi-persona code-review this table names) |
+| `handoff` | step 16 | ❌ not available |
+
+No per-repo wrapper was supplied binding these names to something else. Per protocol this is a hard stop: I'm acquiring nothing and editing nothing until you say how to proceed.
+
+Given D01 is small (one flag, one test), I'd lean toward proceeding without the 8 missing skills rather than treating this as blocked — but that's your call, since it changes what gets recorded as `NOT-RUN` later (no mutation audit, no formal multi-persona review, no result UI, commit-planning and handoff done manually instead of via the named skills).
+
+**Test**, how do you want to proceed — go ahead without all 8 missing skills (recorded via `--proceed-without`), or stop here?
