@@ -1,0 +1,32 @@
+client: Codex
+
+## prompt
+
+Use $swe-day to run a SWE day on work item D01: add a --version flag to cli.py. This directory is the implementation repository; ops/ is the ops repository (timeline: ops/timeline.md, timesheet: ops/timesheet.md). I am the operator, Test. Stay inside this directory.
+
+## tool calls
+
+1. command_execution {"command": "/bin/zsh -lc \"sed -n '1,260p' .agents/skills/swe-day/references/steps.md && sed -n '261,520p' .agents/skills/swe-day/references/steps.md && sed -n '521,900p' .agents/skills/swe-day/references/steps.md\""}
+  status: completed, exit 0
+2. command_execution {"command": "/bin/zsh -lc 'pwd; git rev-parse --show-toplevel; git status --short --branch; git worktree list --porcelain'"}
+  status: completed, exit 0
+3. command_execution {"command": "/bin/zsh -lc \"rg --files -g 'AGENTS.md' -g 'ops/**' -g '*HANDOFF*' -g '*handoff*' -g '*plan*' -g 'Makefile' -g 'pyproject.toml' -g 'requirements*' -g 'cli.py' -g 'tests/**' | sort\""}
+  status: completed, exit 0
+4. command_execution {"command": "/bin/zsh -lc \"sed -n '1,240p' ops/timeline.md; sed -n '1,160p' ops/timesheet.md; find ops -maxdepth 3 -type f \\\\( -iname '*handoff*' -o -iname '*plan*' -o -iname '*progress*' \\\\) -print -exec sed -n '1,180p' {} \\\\;\""}
+  status: completed, exit 0
+5. command_execution {"command": "/bin/zsh -lc 'python3 .agents/skills/swe-day/scripts/swe_day_lock.py --repo ops status'"}
+  status: completed, exit 0
+6. command_execution {"command": "/bin/zsh -lc \"git -C ops rev-parse --show-toplevel 2>&1; git check-ignore -v ops 2>&1 || true; sed -n '1,220p' AGENTS.md; sed -n '1,240p' Makefile; sed -n '1,260p' cli.py; sed -n '1,300p' tests/test_cli.py\""}
+  status: completed, exit 0
+
+## final message
+
+Preflight stopped before writes or lock acquisition.
+
+- Work item D01 exists and has no prerequisites.
+- Implementation repo/worktree and `ops/` repository are valid and clean.
+- Timeline, handoff, and timesheet are readable.
+- Missing required delegated skill: `mutation-testing` (needed for step 11).
+- No files changed; no lock acquired.
+
+May I proceed without `mutation-testing` and record step 11 as `NOT-RUN`? Reply **“proceed without mutation-testing”** to authorize.

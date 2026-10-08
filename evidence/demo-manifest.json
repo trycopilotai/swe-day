@@ -52,91 +52,104 @@
       "product": "Claude Code",
       "version": "2.1.220",
       "model": "claude-sonnet-5",
-      "skill_source": "Two --plugin-dir directories: this repository's tracked files at the v0.1.9 skill text (the run preceded the release commit; skills/swe-day/ is byte-identical to v0.1.9), and plugins/replx from trycopilotai/skills v0.6.0, which vendors replx v0.2.0",
+      "skill_source": "Nine --plugin-dir directories: swe-day cloned at its v0.1.10 tag, and plugins/<name>/ of trycopilotai/skills v0.7.0 for each of the eight published companions",
       "invocation": "/swe-day",
       "prompt": "Use /swe-day to run a SWE day on work item D01: add a --version flag to cli.py. This directory is the implementation repository; ops/ is the ops repository (timeline: ops/timeline.md, timesheet: ops/timesheet.md). I am the operator, Test. Stay inside this directory.",
-      "fixture": "A synthetic git repository holding a one-file Python greeter (cli.py, one unittest, make check), with a separate synthetic ops repository at ops/ (timeline.md listing work item D01, handoff.md, timesheet.md) and local bare remotes only. No wrapper was present. replx was installed beside swe-day; none of the other eight delegated skills was supplied by the fixture or this package.",
-      "date": "2026-10-07",
+      "fixture": "A synthetic git repository holding a one-file Python greeter (cli.py, one unittest, make check), with a separate synthetic ops repository at ops/ (timeline.md listing work item D01, handoff.md, timesheet.md) and local bare remotes only. No wrapper was present. The eight published companions were installed beside swe-day: replx, improve-coverage, plan-commits, htmlify, review-watch, address-comments, multi-persona-code-review and handoff, each from plugins/<name>/ of trycopilotai/skills v0.7.0. mutation-testing, which is not published, was not supplied.",
+      "date": "2026-10-08",
       "transcript": {
-        "path": "evidence/transcripts/2026-10-07-claude-code-invocation.txt",
-        "sha256": "df5ab826383a68f9c2c2c878a627f2581ed31e4788f1a9bdd336fb5d0a28e14a"
+        "path": "evidence/transcripts/2026-10-08-claude-code-invocation.txt",
+        "sha256": "f24cbc0abf27ec69d5b2ddbbfad66c52830c92c38a713a685336b5a9d2509f15"
       },
-      "raw_output_sha256": "21dcdad6ebaa7efd38a56dc26ebbbb885cc26e55cd369da0bdb289f189598cbf",
+      "raw_output_sha256": "8cb51e212ea67753a8d4755fce08573d0c34b904f6d355916efdfa2a1bde7e50",
       "renderer": "scripts/render_invocation.py",
       "transforms": [
         {
           "name": "replace-plugin-root",
-          "what": "The absolute path of the directory the client loaded the skills from was replaced with /plugin: for Claude Code the parent of the two --plugin-dir directories, so swe-day and replx appear as /plugin/swe-day and /plugin/replx; for Codex the fixture's skills directory, from which Codex loaded both skills."
+          "what": "The parent of the nine --plugin-dir directories is replaced with /plugin, so swe-day appears as /plugin/swe-day. It applied once in this transcript."
         },
         {
           "name": "replace-capture-root",
-          "what": "The fixture's absolute path was replaced with /work."
+          "what": "The fixture's absolute path is replaced with /work. It applied seven times in this transcript."
         },
         {
           "name": "replace-scratch-root",
-          "what": "A client scratch directory prefix /private/tmp/claude-<uid>/<slug> would be replaced with /scratch; neither raw output contained one."
+          "what": "A client scratch directory prefix /private/tmp/claude-<uid>/<slug> is replaced with /scratch. It did not apply: the rendered text contained none."
         },
         {
           "name": "replace-home",
-          "what": "The home directory was replaced with ~."
+          "what": "The home directory is replaced with ~. It did not apply: every occurrence was inside the plugin or fixture path, replaced first."
         },
         {
           "name": "replace-hostname",
-          "what": "The recording machine's hostname was replaced with host."
+          "what": "The recording machine's hostname is replaced with host. It did not apply: the rendered text contained none."
         }
       ],
       "invoked_the_skill": true,
-      "outcome": "Loaded the skill (Skill swe-day:swe-day) and stopped at the step 0 preflight: replx resolved for step 8, eight skills were reported missing, it took no lock, edited nothing, and asked the operator whether to proceed without them. It reported code-review missing, although a skill named code-review was listed in the session.",
-      "rendering": "Besides the transforms, scripts/render_invocation.py cuts every tool-call argument string longer than 300 characters and marks the cut as ...[N more characters]. It writes only each call's name, arguments and status, not tool output.",
+      "outcome": "Loaded the skill (Skill swe-day:swe-day) and stopped at the step 0 preflight: it reported eight of the nine delegated skills available and mutation-testing (step 11) missing, took no lock, made no Write or Edit call, and asked the operator whether to proceed without mutation-testing.",
+      "rendering": "Besides the replacements, scripts/render_invocation.py writes each call's arguments as JSON with sorted keys and cuts every argument string longer than 300 characters, marking the cut as ...[N more characters]; no argument in this run was that long, so this transcript has no cut. It writes the prompt with trailing newlines dropped, each call's name, arguments and status, and the final message; it leaves out tool output, the agent's reasoning and its other messages. The replacements run over the whole assembled text, the final message included.",
       "delegated_skills_listed": [
         "replx",
-        "code-review"
+        "improve-coverage",
+        "plan-commits",
+        "htmlify",
+        "review-watch",
+        "address-comments",
+        "multi-persona-code-review",
+        "handoff"
       ],
-      "delegated_skills_note": "The session's available skills included replx:replx and one named code-review, bundled with Claude Code and not the multi-persona review step 0 means. By step 0's rule a listed name resolves, so seven of the nine were missing; the agent reported eight missing."
+      "delegated_skills_note": "The session's available skills listed each companion as <name>:<name> and no mutation-testing. It also listed Claude Code's own code-review, a name step 0 no longer uses."
     },
     {
       "product": "Codex",
       "version": "0.146.0",
       "model": "gpt-5.6-sol",
       "model_source": "Codex's local session log for this thread; the --json output does not name the model.",
-      "skill_source": "skills/swe-day/ of this repository at the v0.1.9 skill text and skills/replx/ from trycopilotai/skills v0.6.0 (replx v0.2.0), both copied into the fixture's .agents/skills/ and committed there",
+      "skill_source": "skills/swe-day/ of this repository at its v0.1.10 tag and skills/<name>/ of plugins/<name>/ in trycopilotai/skills v0.7.0 for each of the eight published companions, all copied into the fixture's .agents/skills/ and committed there",
       "invocation": "$swe-day",
       "prompt": "Use $swe-day to run a SWE day on work item D01: add a --version flag to cli.py. This directory is the implementation repository; ops/ is the ops repository (timeline: ops/timeline.md, timesheet: ops/timesheet.md). I am the operator, Test. Stay inside this directory.",
-      "fixture": "A synthetic git repository holding a one-file Python greeter (cli.py, one unittest, make check), with a separate synthetic ops repository at ops/ (timeline.md listing work item D01, handoff.md, timesheet.md) and local bare remotes only. No wrapper was present. replx was installed beside swe-day; none of the other eight delegated skills was supplied by the fixture or this package.",
-      "date": "2026-10-07",
+      "fixture": "A synthetic git repository holding a one-file Python greeter (cli.py, one unittest, make check), with a separate synthetic ops repository at ops/ (timeline.md listing work item D01, handoff.md, timesheet.md) and local bare remotes only. No wrapper was present. The eight published companions were installed beside swe-day: replx, improve-coverage, plan-commits, htmlify, review-watch, address-comments, multi-persona-code-review and handoff, each from plugins/<name>/ of trycopilotai/skills v0.7.0. mutation-testing, which is not published, was not supplied.",
+      "date": "2026-10-08",
       "transcript": {
-        "path": "evidence/transcripts/2026-10-07-codex-invocation.txt",
-        "sha256": "3b734b0db925de8f4ed128090854e356c4ff3e734b0a884cc38980c2a07e8495"
+        "path": "evidence/transcripts/2026-10-08-codex-invocation.txt",
+        "sha256": "7d8356d7a8d4458d2fc6d1222c7870ab3ae61145f3f1ae673efe5cce14bcd3df"
       },
-      "raw_output_sha256": "bb410b96bdc8e32fafded0462a244fc036faac3c7fca98382964574aca898ca6",
+      "raw_output_sha256": "ea1a7690930ffde96d08b2208645d799b52cabd0af8a948e2925bec24ab0608e",
       "renderer": "scripts/render_invocation.py",
       "transforms": [
         {
           "name": "replace-plugin-root",
-          "what": "The absolute path of the directory the client loaded the skills from was replaced with /plugin: for Claude Code the parent of the two --plugin-dir directories, so swe-day and replx appear as /plugin/swe-day and /plugin/replx; for Codex the fixture's skills directory, from which Codex loaded both skills."
+          "what": "The fixture's .agents/skills/ directory, from which Codex loaded all nine skills, is replaced with /plugin where it appears as an absolute path. It did not apply: every call used paths relative to the fixture."
         },
         {
           "name": "replace-capture-root",
-          "what": "The fixture's absolute path was replaced with /work."
+          "what": "The fixture's absolute path is replaced with /work. It did not apply: the rendered text contained none."
         },
         {
           "name": "replace-scratch-root",
-          "what": "A client scratch directory prefix /private/tmp/claude-<uid>/<slug> would be replaced with /scratch; neither raw output contained one."
+          "what": "A client scratch directory prefix /private/tmp/claude-<uid>/<slug> is replaced with /scratch. It did not apply: the rendered text contained none."
         },
         {
           "name": "replace-home",
-          "what": "The home directory was replaced with ~."
+          "what": "The home directory is replaced with ~. It did not apply: the rendered text contained none."
         },
         {
           "name": "replace-hostname",
-          "what": "The recording machine's hostname was replaced with host."
+          "what": "The recording machine's hostname is replaced with host. It did not apply: the rendered text contained none."
         }
       ],
       "invoked_the_skill": true,
-      "outcome": "Read .agents/skills/swe-day/SKILL.md and references/steps.md, reported replx available, stopped at the step 0 preflight naming the other eight delegated skills as missing, took no lock, edited nothing, and asked the operator whether to proceed without them.",
-      "rendering": "Besides the transforms, scripts/render_invocation.py cuts every tool-call argument string longer than 300 characters and marks the cut as ...[N more characters]. It writes only each call's name, arguments and status, not tool output.",
+      "outcome": "Read .agents/skills/swe-day/references/steps.md and ran the skill's swe_day_lock.py status, stopped at the step 0 preflight naming mutation-testing (step 11) as the only missing delegated skill, took no lock, said no files changed, and asked the operator whether to proceed without it.",
+      "rendering": "Besides the replacements, scripts/render_invocation.py writes each call's arguments as JSON with sorted keys and cuts every argument string longer than 300 characters, marking the cut as ...[N more characters]; no argument in this run was that long, so this transcript has no cut. It writes the prompt with trailing newlines dropped, each call's name, arguments and status, and the final message; it leaves out tool output, the agent's reasoning and its other messages. The replacements run over the whole assembled text, the final message included.",
       "delegated_skills_listed": [
-        "replx"
+        "replx",
+        "improve-coverage",
+        "plan-commits",
+        "htmlify",
+        "review-watch",
+        "address-comments",
+        "multi-persona-code-review",
+        "handoff"
       ]
     }
   ]

@@ -529,7 +529,7 @@ class InvocationEvidenceTest(unittest.TestCase):
         by_product = {e["product"]: read(ROOT / e["transcript"]["path"]) for e in self.invocations()}
         self.assertIn('1. Skill {"args":', by_product["Claude Code"])
         self.assertIn('"skill": "swe-day:swe-day"}', by_product["Claude Code"])
-        self.assertIn(".agents/skills/swe-day/SKILL.md", by_product["Codex"])
+        self.assertIn(".agents/skills/swe-day/references/steps.md", by_product["Codex"])
 
     def test_transcripts_carry_only_replaced_paths(self) -> None:
         for entry in self.invocations():
@@ -626,6 +626,32 @@ class RendererTest(unittest.TestCase):
         self.assertIn("...[104 more characters]", text)
         self.assertIn("  status: completed, exit 0", text)
         self.assertTrue(text.endswith("## final message\n\nDone.\n"))
+
+    def test_arguments_are_sorted_and_only_the_final_message_is_kept(self) -> None:
+        text = self.render(
+            "codex",
+            [
+                {"type": "item.completed", "item": {"type": "reasoning", "text": "think"}},
+                {"type": "item.completed", "item": {"type": "agent_message", "text": "Working."}},
+                {"type": "item.completed", "item": {"type": "file_change", "status": "completed",
+                 "changes": [{"path": "/h/me/fix/a.py", "kind": "add"}]}},
+                {"type": "item.completed", "item": {"type": "agent_message", "text": "Done in /h/me/fix now."}},
+            ],
+        )
+        self.assertIn("## prompt\n\nUse /swe-day here.\n\n## tool calls", text)
+        self.assertIn(
+            '1. file_change {"changes": [{"kind": "add", "path": "/work/a.py"}], '
+            '"status": "completed", "type": "file_change"}',
+            text,
+        )
+        self.assertNotIn("think", text)
+        self.assertNotIn("Working.", text)
+        self.assertTrue(text.endswith("## final message\n\nDone in /work now.\n"))
+
+    def test_renderer_does_not_call_the_final_message_verbatim(self) -> None:
+        doc = load(RENDERER, "render_invocation").__doc__
+        self.assertNotIn("verbatim", doc)
+        self.assertIn("sorted keys", doc)
 
 
 if __name__ == "__main__":

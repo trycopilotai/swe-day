@@ -36,9 +36,10 @@ repository.
   that goes past step 0 has not been measured. Neither
   invocation went past step 0, and the recorded lock session
   does not use `--proceed-without`.
-- The invocations loaded the skill from a plugin directory
-  (Claude Code) and from a repository's `.agents/skills/`
-  (Codex), not through the install blocks below.
+- The invocations loaded the skill and its companions from
+  plugin directories (Claude Code) and from a repository's
+  `.agents/skills/` (Codex), not through the install blocks
+  below.
 
 ## What is in it
 
@@ -88,9 +89,9 @@ one with the name below:
 - `handoff`: a handoff recorder (step 16), published at
   [trycopilotai/handoff](https://github.com/trycopilotai/handoff).
 
-`replx` and `htmlify` are listed in
-[trycopilotai/skills](https://github.com/trycopilotai/skills);
-the others are published but not yet listed there.
+All eight published ones are listed in
+[trycopilotai/skills](https://github.com/trycopilotai/skills),
+which ships each under `plugins/<name>/` from its v0.7.0 tag.
 
 A name resolves when a skill of that name is listed among
 the agent session's available skills, or when a
@@ -142,7 +143,7 @@ fails.
 
 ```sh
 set -eu
-release=v0.1.10
+release=v0.1.11
 install_target="$HOME/.claude/skills/swe-day"
 install_parent="$(dirname "$install_target")"
 mkdir -p "$install_parent"
@@ -179,7 +180,7 @@ the block above is `install_target`.
 
 ```sh
 set -eu
-release=v0.1.10
+release=v0.1.11
 install_target="$HOME/.agents/skills/swe-day"
 install_parent="$(dirname "$install_target")"
 mkdir -p "$install_parent"
@@ -246,52 +247,59 @@ transcript and the demo images to each other.
 
 ### Agent invocations
 
-Each client was started once, with the v0.1.9 skill text, on
+Each client was started once, with the v0.1.10 skill text, on
 one synthetic fixture: a small Python repository and a
 separate ops repository, with work item D01 (add a
-`--version` flag to `cli.py`) and no wrapper. `replx`, as
+`--version` flag to `cli.py`) and no wrapper. The eight
+published companions, `replx`, `improve-coverage`,
+`plan-commits`, `htmlify`, `review-watch`,
+`address-comments`, `multi-persona-code-review` and
+`handoff`, were installed beside the skill as
 [trycopilotai/skills](https://github.com/trycopilotai/skills)
-v0.6.0 ships it, was installed beside the skill; none of the
-other eight delegated skills was supplied. This is one run
-per client, not a benchmark.
+v0.7.0 ships them. `mutation-testing` was not supplied. This
+is one run per client, not a benchmark.
 
-- [`evidence/transcripts/2026-10-07-claude-code-invocation.txt`](evidence/transcripts/2026-10-07-claude-code-invocation.txt):
+- [`evidence/transcripts/2026-10-08-claude-code-invocation.txt`](evidence/transcripts/2026-10-08-claude-code-invocation.txt):
   Claude Code 2.1.220, invoked with `/swe-day`. It loaded the
-  skill, found `replx` for step 8, stopped at step 0, took no
-  lock, edited nothing, and asked whether to proceed without
-  the missing skills. It named eight as missing, but the
-  session listed a skill named `code-review` that ships with
-  Claude Code, so by step 0's rule only seven were.
-- [`evidence/transcripts/2026-10-07-codex-invocation.txt`](evidence/transcripts/2026-10-07-codex-invocation.txt):
-  Codex 0.146.0, invoked with `$swe-day`. It reported `replx`
-  available and stopped at step 0 naming the other eight, with
-  no lock and no edits.
+  skill, reported eight of the nine delegated skills
+  available and `mutation-testing` (step 11) missing, stopped
+  at step 0, took no lock, made no edit, and asked whether to
+  proceed without `mutation-testing`.
+- [`evidence/transcripts/2026-10-08-codex-invocation.txt`](evidence/transcripts/2026-10-08-codex-invocation.txt):
+  Codex 0.146.0, invoked with `$swe-day`. It read the skill's
+  steps, stopped at step 0 naming `mutation-testing` as the
+  only missing delegated skill, took no lock, made no edit,
+  and asked whether to proceed without it.
 
-The runs recorded at v0.1.6, before step 8 named `replx`,
+The runs recorded on 2026-10-07, with only `replx` installed,
 are in this repository's history at
-[v0.1.8](https://github.com/trycopilotai/swe-day/tree/v0.1.8/evidence/transcripts).
-Both runs above used the v0.1.9 step 0 table, which named
-`result-visualizer` and `code-review` where v0.1.10 names
-`htmlify` and `multi-persona-code-review`; they have not
-been re-recorded with the new names.
+[v0.1.10](https://github.com/trycopilotai/swe-day/tree/v0.1.10/evidence/transcripts).
 
 `scripts/render_invocation.py` wrote both from the clients'
-raw output, which is not committed. It keeps each tool
-call's name, arguments and status, not the tool's output,
-and cuts any argument string longer than 300 characters,
-marking the cut `...[N more characters]`. Its only other
-edits are the ones `evidence/demo-manifest.json` declares
-for each invocation: `replace-plugin-root`,
+raw output, which is not committed. It writes a header
+naming the client (for Claude Code also its version and
+model), the prompt with trailing newlines dropped, each tool
+call's name, its arguments as JSON with sorted keys and its
+status (for Codex also its exit code), and the final
+message. It leaves out tool output, the agent's reasoning
+and its other messages. It cuts any argument
+string longer than 300 characters, marking the cut
+`...[N more characters]`; no argument in these two runs was
+that long. It then applies, to the whole text including the
+final message, the replacements `evidence/demo-manifest.json`
+declares for each invocation: `replace-plugin-root`,
 `replace-capture-root`, `replace-scratch-root`,
-`replace-home` and `replace-hostname`. The manifest also
-records each model, prompt and outcome and both files'
-SHA-256.
+`replace-home` and `replace-hostname`. The manifest says
+which of them applied to each transcript, and records each
+model, prompt and outcome and both files' SHA-256.
 
 **Known limits.** Step 0 resolves a delegated skill by name
-alone, so an unrelated skill with the same name counts as
-resolved. Up to v0.1.9 step 0 named `code-review`, and
-Claude Code ships an unrelated skill with that name; from
-v0.1.10 step 0 names `multi-persona-code-review`.
+alone, so an unrelated skill with the same name would count
+as resolved; these runs do not test whether an agent checks
+what a listed name does. `mutation-testing` is not
+published, so every run stops at step 0 unless a wrapper
+binds that name to a listed skill or the operator agrees to
+go on without it. Neither run went past step 0.
 
 ## Contributing
 

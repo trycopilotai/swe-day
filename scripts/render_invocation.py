@@ -5,15 +5,30 @@
         --prompt prompt.txt --root <fixture> --plugin-root <clone> \
         --home <home> --hostname <name> raw.jsonl > transcript.txt
 
-Writes the prompt, every tool call (name and arguments, each
-argument string cut at LIMIT characters), each call's status
-where the raw output records it, and the final message
-verbatim. The only edits, in this order, each applied to a
-whole path prefix and never inside a longer name: each
---plugin-root (the directory the client loaded the skill
-from) becomes /plugin, the fixture's absolute path /work, a
-client scratch directory /private/tmp/claude-<uid>/<slug>
-/scratch, the home directory ~, and each --hostname host.
+Writes a header (Claude Code: the client version and model from
+the init event; Codex: the client name only), the prompt with
+trailing newlines dropped, every tool call, each call's status
+where the raw output records it, and the final message. A call
+is written as its name and its arguments re-serialised as JSON
+with sorted keys, each argument string cut at LIMIT characters
+and marked "...[N more characters]". For Codex, a completed
+item that is not a command, a message or reasoning is written
+as its type and all its fields. Left out: tool output, the
+agent's reasoning, every message but the final one, and every
+other event. Once the text is assembled, after the cuts, these
+replacements run over all of it, prompt and final message
+included, in this order: each --plugin-root (the directory the
+client loaded the skills from) becomes /plugin, the fixture's
+absolute path /work, a client scratch directory
+/private/tmp/claude-<uid>/<slug> /scratch, the home directory
+~, and each --hostname host. The plugin, fixture and home
+paths are replaced only where no letter, digit, underscore, dot
+or hyphen comes before them and a slash, backslash, quote,
+backtick, whitespace or the end of the text comes after them;
+the scratch directory wherever it occurs; a hostname only where
+no letter, digit, underscore, dot or hyphen comes before it and
+no letter, digit, underscore, hyphen, or dot followed by a
+letter, digit or underscore, comes after it.
 Standard library only; output depends only on the inputs.
 """
 
