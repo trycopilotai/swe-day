@@ -65,20 +65,32 @@ and none of them ships here. Step 0 of
 one with the name below:
 
 - `replx`: a bounded fix loop (step 8), published at
-  [trycopilotai/replx](https://github.com/trycopilotai/replx)
-  and listed in
-  [trycopilotai/skills](https://github.com/trycopilotai/skills).
-- `improve-coverage`: a coverage improver (step 10).
+  [trycopilotai/replx](https://github.com/trycopilotai/replx).
+- `improve-coverage`: a coverage improver (step 10),
+  published at
+  [trycopilotai/improve-coverage](https://github.com/trycopilotai/improve-coverage).
 - `plan-commits`: a commit planner, called as
-  `planCommits()` (steps 10, 13 and 16).
+  `planCommits()` (steps 10, 13 and 16), published at
+  [trycopilotai/plan-commits](https://github.com/trycopilotai/plan-commits).
 - `mutation-testing`: a mutation-testing audit (step 11).
-- `result-visualizer`: a result visualizer (step 12).
-- `review-watch`: a review watcher (step 12).
+  It is not published.
+- `htmlify`: renders the result summary as an HTML
+  evidence review (step 12), published at
+  [trycopilotai/htmlify](https://github.com/trycopilotai/htmlify).
+- `review-watch`: a review watcher (step 12), published at
+  [trycopilotai/review-watch](https://github.com/trycopilotai/review-watch).
 - `address-comments`: an operator-comment ingest (steps 10,
-  12 and 13).
-- `code-review`: a multi-persona code review (steps 10 and
-  13).
-- `handoff`: a handoff recorder (step 16).
+  12 and 13), published at
+  [trycopilotai/address-comments](https://github.com/trycopilotai/address-comments).
+- `multi-persona-code-review`: a multi-persona code review
+  (steps 10 and 13), published at
+  [trycopilotai/multi-persona-code-review](https://github.com/trycopilotai/multi-persona-code-review).
+- `handoff`: a handoff recorder (step 16), published at
+  [trycopilotai/handoff](https://github.com/trycopilotai/handoff).
+
+`replx` and `htmlify` are listed in
+[trycopilotai/skills](https://github.com/trycopilotai/skills);
+the others are published but not yet listed there.
 
 A name resolves when a skill of that name is listed among
 the agent session's available skills, or when a
@@ -130,7 +142,7 @@ fails.
 
 ```sh
 set -eu
-release=v0.1.9
+release=v0.1.10
 install_target="$HOME/.claude/skills/swe-day"
 install_parent="$(dirname "$install_target")"
 mkdir -p "$install_parent"
@@ -167,7 +179,7 @@ the block above is `install_target`.
 
 ```sh
 set -eu
-release=v0.1.9
+release=v0.1.10
 install_target="$HOME/.agents/skills/swe-day"
 install_parent="$(dirname "$install_target")"
 mkdir -p "$install_parent"
@@ -258,6 +270,10 @@ per client, not a benchmark.
 The runs recorded at v0.1.6, before step 8 named `replx`,
 are in this repository's history at
 [v0.1.8](https://github.com/trycopilotai/swe-day/tree/v0.1.8/evidence/transcripts).
+Both runs above used the v0.1.9 step 0 table, which named
+`result-visualizer` and `code-review` where v0.1.10 names
+`htmlify` and `multi-persona-code-review`; they have not
+been re-recorded with the new names.
 
 `scripts/render_invocation.py` wrote both from the clients'
 raw output, which is not committed. It keeps each tool
@@ -272,8 +288,10 @@ records each model, prompt and outcome and both files'
 SHA-256.
 
 **Known limits.** Step 0 resolves a delegated skill by name
-alone, so an unrelated skill with the same name, such as
-Claude Code's own `code-review`, counts as resolved.
+alone, so an unrelated skill with the same name counts as
+resolved. Up to v0.1.9 step 0 named `code-review`, and
+Claude Code ships an unrelated skill with that name; from
+v0.1.10 step 0 names `multi-persona-code-review`.
 
 ## Contributing
 
