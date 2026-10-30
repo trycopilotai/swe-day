@@ -102,7 +102,11 @@ def codex(events):
         if item.get("type") == "command_execution":
             lines.append(
                 "command_execution %s\n  status: %s, exit %s"
-                % (arguments({"command": item["command"]}), item.get("status"), item.get("exit_code"))
+                % (
+                    arguments({"command": item["command"]}),
+                    item.get("status"),
+                    item.get("exit_code"),
+                )
             )
         elif item.get("type") == "agent_message":
             final = item["text"]

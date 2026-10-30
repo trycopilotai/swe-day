@@ -176,7 +176,9 @@ class SkillTest(unittest.TestCase):
         documents = [SKILL, *sorted((PACKAGE / "references").glob("*.md"))]
         calls = []
         for document in documents:
-            for call in re.findall(r"python3 (\S*scripts/swe_day_\w+\.py)", read(document)):
+            for call in re.findall(
+                r"python3 (\S*scripts/swe_day_\w+\.py)", read(document)
+            ):
                 calls.append(call)
                 self.assertEqual(
                     call.split("scripts/")[0], "<skill-dir>/", document.name
@@ -204,7 +206,9 @@ class SkillTest(unittest.TestCase):
         steps = read(PACKAGE / "references" / "steps.md")
         sections = re.split(r"^### (\d+)\. ", steps, flags=re.M)
         bodies = dict(zip(sections[1::2], sections[2::2]))
-        rows = re.findall(r"^\s*\| `([a-z-]+)` \| steps? ([\d, ]+) \|", bodies["0"], flags=re.M)
+        rows = re.findall(
+            r"^\s*\| `([a-z-]+)` \| steps? ([\d, ]+) \|", bodies["0"], flags=re.M
+        )
         aliases = {"plan-commits": "planCommits"}
         checked = 0
         for name, served in rows:
@@ -221,14 +225,18 @@ class SkillTest(unittest.TestCase):
 
     def test_docs_say_where_the_default_lock_goes(self) -> None:
         steps = read(PACKAGE / "references" / "steps.md")
-        preflight = " ".join(steps.split("### 0. ", 1)[1].split("### 1. ", 1)[0].split())
+        preflight = " ".join(
+            steps.split("### 0. ", 1)[1].split("### 1. ", 1)[0].split()
+        )
         self.assertIn("`--repo` is `ops_repo` and `--lock-path` is omitted", preflight)
         self.assertIn("it prints `lock_path` and writes nothing", preflight)
         self.assertIn("Never commit it", preflight)
         for document in (README, SKILL, PACKAGE / "references" / "summary.md"):
             text = " ".join(read(document).split())
             self.assertIn("default path inside `ops_repo`", text, document.name)
-            self.assertNotIn("default path in the target repository", text, document.name)
+            self.assertNotIn(
+                "default path in the target repository", text, document.name
+            )
 
     def test_status_reports_the_default_lock_path_without_writing(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -252,7 +260,9 @@ class SkillTest(unittest.TestCase):
         self.assertIn("`--lock-path` is omitted, so the script uses its default", flat)
         self.assertIn("--proceed-without", flat)
         self.assertIn("acquire nothing, edit nothing", flat)
-        self.assertIn("A run that stops in step 0 writes nothing and takes no lock", flat)
+        self.assertIn(
+            "A run that stops in step 0 writes nothing and takes no lock", flat
+        )
         skill = " ".join(read(SKILL).split())
         self.assertIn("lock script's default path inside `ops_repo`", skill)
         # A run that stops at the preflight takes no lock, so no
@@ -326,7 +336,9 @@ class ReadmeTest(unittest.TestCase):
 
     def test_transcript_shows_the_refused_second_acquire(self) -> None:
         lines = read(TRANSCRIPT).splitlines()
-        acquires = [i for i, line in enumerate(lines) if line.startswith("$ lock acquire")]
+        acquires = [
+            i for i, line in enumerate(lines) if line.startswith("$ lock acquire")
+        ]
         self.assertEqual(len(acquires), 2)
         second = lines[acquires[1] :]
         self.assertEqual(second[1], REFUSAL)
@@ -526,7 +538,10 @@ class InvocationEvidenceTest(unittest.TestCase):
             self.assertIn(entry["date"], path.name)
 
     def test_transcripts_show_the_skill_being_loaded(self) -> None:
-        by_product = {e["product"]: read(ROOT / e["transcript"]["path"]) for e in self.invocations()}
+        by_product = {
+            e["product"]: read(ROOT / e["transcript"]["path"])
+            for e in self.invocations()
+        }
         self.assertIn('1. Skill {"args":', by_product["Claude Code"])
         self.assertIn('"skill": "swe-day:swe-day"}', by_product["Claude Code"])
         self.assertIn(".agents/skills/swe-day/references/steps.md", by_product["Codex"])
@@ -538,7 +553,14 @@ class InvocationEvidenceTest(unittest.TestCase):
             # Spelled in pieces so that a search of this repository
             # for a machine path finds only real ones.
             users = "Use" + "rs"
-            leaks = ("/%s/" % users, "-%s-" % users, "/private/", "/var/folders", "/home/", "claude-5" + "01")
+            leaks = (
+                "/%s/" % users,
+                "-%s-" % users,
+                "/private/",
+                "/var/folders",
+                "/home/",
+                "claude-5" + "01",
+            )
             for leak in leaks:
                 self.assertNotIn(leak, text)
 
@@ -555,7 +577,9 @@ class InvocationEvidenceTest(unittest.TestCase):
     def test_rendering_rule_is_declared_and_matches_the_renderer(self) -> None:
         renderer = load(RENDERER, "render_invocation")
         for entry in self.invocations():
-            self.assertIn("longer than %d characters" % renderer.LIMIT, entry["rendering"])
+            self.assertIn(
+                "longer than %d characters" % renderer.LIMIT, entry["rendering"]
+            )
             self.assertIn("...[N more characters]", entry["rendering"])
             self.assertIsInstance(entry["delegated_skills_listed"], list)
 
@@ -570,15 +594,34 @@ class RendererTest(unittest.TestCase):
                 "".join(json.dumps(event) + "\n" for event in events), encoding="utf-8"
             )
             result = subprocess.run(
-                [sys.executable, str(RENDERER), "--client", client, "--prompt", str(prompt),
-                 "--root", "/h/me/fix", "--home", "/h/me", *extra, str(stream)],
-                capture_output=True, text=True, check=True,
+                [
+                    sys.executable,
+                    str(RENDERER),
+                    "--client",
+                    client,
+                    "--prompt",
+                    str(prompt),
+                    "--root",
+                    "/h/me/fix",
+                    "--home",
+                    "/h/me",
+                    *extra,
+                    str(stream),
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
             )
         return result.stdout
 
     def claude_events(self, *paths: str) -> list:
         uses = [
-            {"type": "tool_use", "id": "t%d" % i, "name": "Read", "input": {"file_path": path}}
+            {
+                "type": "tool_use",
+                "id": "t%d" % i,
+                "name": "Read",
+                "input": {"file_path": path},
+            }
             for i, path in enumerate(paths)
         ]
         results = [
@@ -586,7 +629,12 @@ class RendererTest(unittest.TestCase):
             for i in range(len(paths))
         ]
         return [
-            {"type": "system", "subtype": "init", "model": "m1", "claude_code_version": "9.9"},
+            {
+                "type": "system",
+                "subtype": "init",
+                "model": "m1",
+                "claude_code_version": "9.9",
+            },
             {"type": "assistant", "message": {"content": uses}},
             {"type": "user", "message": {"content": results}},
             {"type": "result", "result": "Stopped at step 0 on box.local."},
@@ -602,7 +650,12 @@ class RendererTest(unittest.TestCase):
                 "/private/tmp/claude-1000/-h-me-slug/tasks/a.out",
                 "/h/me/other",
             ),
-            "--plugin-root", "/h/me/plug", "--hostname", "box.local", "--hostname", "box",
+            "--plugin-root",
+            "/h/me/plug",
+            "--hostname",
+            "box.local",
+            "--hostname",
+            "box",
         )
         self.assertIn("client: Claude Code 9.9\nmodel: m1\n", text)
         self.assertIn("## prompt\n\nUse /swe-day here.\n", text)
@@ -611,16 +664,28 @@ class RendererTest(unittest.TestCase):
         self.assertIn('"/plugin/skills/s/SKILL.md"', text)
         self.assertIn('"/scratch/tasks/a.out"', text)
         self.assertIn('"~/other"', text)
-        self.assertTrue(text.endswith("## final message\n\nStopped at step 0 on host.\n"))
+        self.assertTrue(
+            text.endswith("## final message\n\nStopped at step 0 on host.\n")
+        )
 
     def test_codex_commands_keep_exit_status_and_are_cut_consistently(self) -> None:
         long = "x" * 400
         text = self.render(
             "codex",
             [
-                {"type": "item.completed", "item": {"type": "command_execution",
-                 "command": "cat " + long, "status": "completed", "exit_code": 0}},
-                {"type": "item.completed", "item": {"type": "agent_message", "text": "Done."}},
+                {
+                    "type": "item.completed",
+                    "item": {
+                        "type": "command_execution",
+                        "command": "cat " + long,
+                        "status": "completed",
+                        "exit_code": 0,
+                    },
+                },
+                {
+                    "type": "item.completed",
+                    "item": {"type": "agent_message", "text": "Done."},
+                },
             ],
         )
         self.assertIn("...[104 more characters]", text)
@@ -631,11 +696,26 @@ class RendererTest(unittest.TestCase):
         text = self.render(
             "codex",
             [
-                {"type": "item.completed", "item": {"type": "reasoning", "text": "think"}},
-                {"type": "item.completed", "item": {"type": "agent_message", "text": "Working."}},
-                {"type": "item.completed", "item": {"type": "file_change", "status": "completed",
-                 "changes": [{"path": "/h/me/fix/a.py", "kind": "add"}]}},
-                {"type": "item.completed", "item": {"type": "agent_message", "text": "Done in /h/me/fix now."}},
+                {
+                    "type": "item.completed",
+                    "item": {"type": "reasoning", "text": "think"},
+                },
+                {
+                    "type": "item.completed",
+                    "item": {"type": "agent_message", "text": "Working."},
+                },
+                {
+                    "type": "item.completed",
+                    "item": {
+                        "type": "file_change",
+                        "status": "completed",
+                        "changes": [{"path": "/h/me/fix/a.py", "kind": "add"}],
+                    },
+                },
+                {
+                    "type": "item.completed",
+                    "item": {"type": "agent_message", "text": "Done in /h/me/fix now."},
+                },
             ],
         )
         self.assertIn("## prompt\n\nUse /swe-day here.\n\n## tool calls", text)

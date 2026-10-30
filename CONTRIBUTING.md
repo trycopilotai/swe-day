@@ -25,9 +25,9 @@ fail on an innocent-looking prose edit:
   the version both plugin manifests ship;
 - `SKILL.md` must stay under 500 lines;
 - `evidence/demo-manifest.json` records the SHA-256 of
-  `SKILL.md`, of both programs and of the transcript, so
-  any edit to one of those four files, prose included,
-  fails until the manifest is refreshed as described next.
+  `SKILL.md`, of both programs and of the transcript, so any
+  edit to one of those four files, prose included, fails
+  until the manifest is refreshed as described next.
 
 If you change one of those, change the thing it describes
 too.
@@ -44,12 +44,14 @@ make demo
 `make record` runs `scripts/record_session.py`. It replays
 the commands listed in the manifest in a throwaway
 directory, writes the transcript with that directory's path
-replaced by `/work` and your hostname by `host`, and rewrites the manifest's hashes,
-date and interpreter. It needs `bash`, `git` and `python3`.
-The transcript carries a new timestamp and process id each
-time, so it changes even when the programs did not.
-`make demo` rebuilds the two images from the transcript. `make assets` rebuilds the social preview and
-needs Chrome or Chromium; `make asset-check` does not.
+replaced by `/work` and your hostname by `host`, and
+rewrites the manifest's hashes, date and interpreter. It
+needs `bash`, `git` and `python3`. The transcript carries a
+new timestamp and process id each time, so it changes even
+when the programs did not. `make demo` rebuilds the two
+images from the transcript. `make assets` rebuilds the
+social preview and needs Chrome or Chromium;
+`make asset-check` does not.
 
 ## What is most useful
 
