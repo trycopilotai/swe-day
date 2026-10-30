@@ -5,6 +5,10 @@ software work end to end, stopping at a human gate wherever
 judgment decides the next move. It ships two small programs:
 a single-writer lock and a next-action banner.
 
+[![auto-lint-pr](https://github.com/trycopilotai/swe-day/actions/workflows/auto-lint-pr.yml/badge.svg)](https://github.com/trycopilotai/swe-day/actions/workflows/auto-lint-pr.yml)
+[![check](https://github.com/trycopilotai/swe-day/actions/workflows/check.yml/badge.svg)](https://github.com/trycopilotai/swe-day/actions/workflows/check.yml)
+[![lint](https://github.com/trycopilotai/swe-day/actions/workflows/lint.yml/badge.svg)](https://github.com/trycopilotai/swe-day/actions/workflows/lint.yml)
+
 swe_day_lock.py refuses to acquire a lock that is held.
 
 <picture>
