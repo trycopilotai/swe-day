@@ -2,12 +2,18 @@
 
 A skill that has a coding agent run one bounded unit of
 software work end to end, stopping at a human gate wherever
-judgment decides the next move. It ships two small programs:
-a single-writer lock and a next-action banner.
+judgment decides the next move.
+
+---
 
 [![auto-lint-pr](https://github.com/trycopilotai/swe-day/actions/workflows/auto-lint-pr.yml/badge.svg)](https://github.com/trycopilotai/swe-day/actions/workflows/auto-lint-pr.yml)
 [![check](https://github.com/trycopilotai/swe-day/actions/workflows/check.yml/badge.svg)](https://github.com/trycopilotai/swe-day/actions/workflows/check.yml)
 [![lint](https://github.com/trycopilotai/swe-day/actions/workflows/lint.yml/badge.svg)](https://github.com/trycopilotai/swe-day/actions/workflows/lint.yml)
+
+---
+
+It ships two small programs: a single-writer lock and a
+next-action banner.
 
 swe_day_lock.py refuses to acquire a lock that is held.
 
