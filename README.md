@@ -73,10 +73,10 @@ one with the name below:
 - `plan-commits`: a commit planner, called as
   `planCommits()` (steps 10, 13 and 16), published at
   [trycopilotai/plan-commits](https://github.com/trycopilotai/plan-commits).
-- `mutation-testing`: a mutation-testing audit (step 11).
-  It is not published.
-- `htmlify`: renders the result summary as an HTML
-  evidence review (step 12), published at
+- `mutation-testing`: a mutation-testing audit (step 11). It
+  is not published.
+- `htmlify`: renders the result summary as an HTML evidence
+  review (step 12), published at
   [trycopilotai/htmlify](https://github.com/trycopilotai/htmlify).
 - `review-watch`: a review watcher (step 12), published at
   [trycopilotai/review-watch](https://github.com/trycopilotai/review-watch).
@@ -91,7 +91,8 @@ one with the name below:
 
 All eight published ones are listed in
 [trycopilotai/skills](https://github.com/trycopilotai/skills),
-which ships each under `plugins/<name>/` from its v0.7.0 tag.
+which ships each under `plugins/<name>/` from its v0.7.0
+tag.
 
 A name resolves when a skill of that name is listed among
 the agent session's available skills, or when a
@@ -102,30 +103,30 @@ what is missing. It goes on only if the operator explicitly
 agrees to run without them; the lock then records that
 consent under the names above
 (`acquire --proceed-without <name>`), and each step that
-needed a missing skill is reported as not run. That check
-is an instruction to the agent: neither program looks for
-the skills, and the lock program records any non-empty name
-it is given.
+needed a missing skill is reported as not run. That check is
+an instruction to the agent: neither program looks for the
+skills, and the lock program records any non-empty name it
+is given.
 
-Every run that goes past the step 0 preflight takes the
-lock at the end of step 0, with or without a wrapper. A run
-that stops at the preflight writes nothing and takes no
-lock. When no lock path is bound, the lock goes at the lock
+Every run that goes past the step 0 preflight takes the lock
+at the end of step 0, with or without a wrapper. A run that
+stops at the preflight writes nothing and takes no lock.
+When no lock path is bound, the lock goes at the lock
 program's default path inside `ops_repo`, the operator's
 private operational repository, so the next-action banner
 and the human gates hold for the rest of the run. Run
 `python3 <skill-dir>/scripts/swe_day_lock.py --repo <ops_repo> status`
-(`<skill-dir>` is the installed skill's directory, as SKILL.md's
-Helper scripts section explains) to see that path:
-it prints `lock_path` and writes nothing, before or after a
-lock exists. Taking the lock is the run's first write to
-that repository. Do not commit the lock directory; its
-metadata records the hostname, process id and absolute
+(`<skill-dir>` is the installed skill's directory, as
+SKILL.md's Helper scripts section explains) to see that
+path: it prints `lock_path` and writes nothing, before or
+after a lock exists. Taking the lock is the run's first
+write to that repository. Do not commit the lock directory;
+its metadata records the hostname, process id and absolute
 repository path.
 
-None of the nine skills ships here, so on an install
-without them every run stops at step 0 until each one
-resolves or the operator agrees to go on without it.
+None of the nine skills ships here, so on an install without
+them every run stops at step 0 until each one resolves or
+the operator agrees to go on without it.
 
 ## Use it
 
@@ -247,8 +248,8 @@ transcript and the demo images to each other.
 
 ### Agent invocations
 
-Each client was started once, with the v0.1.10 skill text, on
-one synthetic fixture: a small Python repository and a
+Each client was started once, with the v0.1.10 skill text,
+on one synthetic fixture: a small Python repository and a
 separate ops repository, with work item D01 (add a
 `--version` flag to `cli.py`) and no wrapper. The eight
 published companions, `replx`, `improve-coverage`,
@@ -260,19 +261,19 @@ v0.7.0 ships them. `mutation-testing` was not supplied. This
 is one run per client, not a benchmark.
 
 - [`evidence/transcripts/2026-10-08-claude-code-invocation.txt`](evidence/transcripts/2026-10-08-claude-code-invocation.txt):
-  Claude Code 2.1.220, invoked with `/swe-day`. It loaded the
-  skill, reported eight of the nine delegated skills
-  available and `mutation-testing` (step 11) missing, stopped
-  at step 0, took no lock, made no edit, and asked whether to
-  proceed without `mutation-testing`.
+  Claude Code 2.1.220, invoked with `/swe-day`. It loaded
+  the skill, reported eight of the nine delegated skills
+  available and `mutation-testing` (step 11) missing,
+  stopped at step 0, took no lock, made no edit, and asked
+  whether to proceed without `mutation-testing`.
 - [`evidence/transcripts/2026-10-08-codex-invocation.txt`](evidence/transcripts/2026-10-08-codex-invocation.txt):
-  Codex 0.146.0, invoked with `$swe-day`. It read the skill's
-  steps, stopped at step 0 naming `mutation-testing` as the
-  only missing delegated skill, took no lock, made no edit,
-  and asked whether to proceed without it.
+  Codex 0.146.0, invoked with `$swe-day`. It read the
+  skill's steps, stopped at step 0 naming `mutation-testing`
+  as the only missing delegated skill, took no lock, made no
+  edit, and asked whether to proceed without it.
 
-The runs recorded on 2026-10-07, with only `replx` installed,
-are in this repository's history at
+The runs recorded on 2026-10-07, with only `replx`
+installed, are in this repository's history at
 [v0.1.10](https://github.com/trycopilotai/swe-day/tree/v0.1.10/evidence/transcripts).
 
 `scripts/render_invocation.py` wrote both from the clients'
@@ -282,16 +283,17 @@ model), the prompt with trailing newlines dropped, each tool
 call's name, its arguments as JSON with sorted keys and its
 status (for Codex also its exit code), and the final
 message. It leaves out tool output, the agent's reasoning
-and its other messages. It cuts any argument
-string longer than 300 characters, marking the cut
+and its other messages. It cuts any argument string longer
+than 300 characters, marking the cut
 `...[N more characters]`; no argument in these two runs was
 that long. It then applies, to the whole text including the
-final message, the replacements `evidence/demo-manifest.json`
-declares for each invocation: `replace-plugin-root`,
-`replace-capture-root`, `replace-scratch-root`,
-`replace-home` and `replace-hostname`. The manifest says
-which of them applied to each transcript, and records each
-model, prompt and outcome and both files' SHA-256.
+final message, the replacements
+`evidence/demo-manifest.json` declares for each invocation:
+`replace-plugin-root`, `replace-capture-root`,
+`replace-scratch-root`, `replace-home` and
+`replace-hostname`. The manifest says which of them applied
+to each transcript, and records each model, prompt and
+outcome and both files' SHA-256.
 
 **Known limits.** Step 0 resolves a delegated skill by name
 alone, so an unrelated skill with the same name would count

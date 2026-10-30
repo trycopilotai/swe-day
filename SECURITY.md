@@ -29,23 +29,23 @@ private channel.
   removes one lock directory, and writes one metadata file
   inside it, at a path the caller names relative to a
   repository root, or at its default path there when none is
-  named. It refuses a path argument that is
-  absolute, contains `..`, or resolves outside that root,
-  and it creates missing parent directories inside the root.
-  A path argument that makes it write or delete outside the
-  root is a finding. So is a sequence of `set-phase`
-  and `clear-gate` commands that, within one held lock,
-  advances a run past a human gate that was not cleared, or
-  a command that changes a lock whose owner and session the
-  caller does not state.
+  named. It refuses a path argument that is absolute,
+  contains `..`, or resolves outside that root, and it
+  creates missing parent directories inside the root. A path
+  argument that makes it write or delete outside the root is
+  a finding. So is a sequence of `set-phase` and
+  `clear-gate` commands that, within one held lock, advances
+  a run past a human gate that was not cleared, or a command
+  that changes a lock whose owner and session the caller
+  does not state.
 - **The banner program.**
   `skills/swe-day/scripts/swe_day_next.py` reads the lock
   metadata and prints a banner of one to three lines. It
   writes no file, and turns off Python's bytecode cache so
-  that importing the lock program writes none either. A lock state that the lock program
-  itself can write, for which the banner shows
-  `OWNER: agent` while `set-phase` refuses the next phase,
-  is a finding.
+  that importing the lock program writes none either. A lock
+  state that the lock program itself can write, for which
+  the banner shows `OWNER: agent` while `set-phase` refuses
+  the next phase, is a finding.
 - **The install blocks.** The two README blocks run
   `mkdir -p`, `mktemp -d`, `git clone`, `cp`, `mv` and
   `rm -rf`, all inside one skills directory under `$HOME`. A
@@ -55,11 +55,10 @@ private channel.
   Chromium binary from a fixed candidate list, runs it
   headless with a temporary profile directory, and writes
   the preview PNG and its stamp. `scripts/generate_demo.py`
-  writes two SVG files; `scripts/verify_demo.py` only
-  reads. `scripts/record_session.py` copies `skills/` into
-  a temporary directory, runs the two programs there
-  through `bash`, and rewrites the transcript and the
-  manifest.
+  writes two SVG files; `scripts/verify_demo.py` only reads.
+  `scripts/record_session.py` copies `skills/` into a
+  temporary directory, runs the two programs there through
+  `bash`, and rewrites the transcript and the manifest.
   `tests/test_integrations.py` runs `git` against the
   repository root and runs the lock program in a temporary
   directory. `tests/test_swe_day_next.py` runs both programs
@@ -87,9 +86,9 @@ security boundary, and these are known limits, not findings:
 - Check-then-change steps are serialized with `flock` on the
   lock's parent directory. That protects only callers that
   use this program. Both programs need `fcntl` and do not
-  run on a system without it. A process
-  that swaps a directory on the lock path for a symlink
-  while a command runs can redirect it.
+  run on a system without it. A process that swaps a
+  directory on the lock path for a symlink while a command
+  runs can redirect it.
 - The metadata records the hostname, the process id, and the
   absolute repository path, so a lock directory should not
   be committed.

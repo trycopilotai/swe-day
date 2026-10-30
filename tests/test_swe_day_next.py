@@ -16,9 +16,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
-SCRIPTS_DIR = (
-    Path(__file__).resolve().parent.parent / "skills" / "swe-day" / "scripts"
-)
+SCRIPTS_DIR = Path(__file__).resolve().parent.parent / "skills" / "swe-day" / "scripts"
 LOCK_SCRIPT = SCRIPTS_DIR / "swe_day_lock.py"
 NEXT_SCRIPT = SCRIPTS_DIR / "swe_day_next.py"
 LOCK_PATH = ".agents/locks/swe-day.lock"
@@ -618,9 +616,7 @@ class BannerTests(Harness):
         import shutil
 
         copy = self.base / "scripts"
-        shutil.copytree(
-            SCRIPTS_DIR, copy, ignore=shutil.ignore_patterns("__pycache__")
-        )
+        shutil.copytree(SCRIPTS_DIR, copy, ignore=shutil.ignore_patterns("__pycache__"))
         before = sorted(path.name for path in copy.iterdir())
         self.acquire()
         rendered = subprocess.run(
